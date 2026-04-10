@@ -5,9 +5,9 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 217 60% 15%;
+    --foreground: 220 20% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 217 60% 15%;
+    --card-foreground: 220 20% 10%;
     --primary: 217 60% 26%;
     --primary-foreground: 210 40% 98%;
     --accent: 25 95% 53%;
@@ -25,4 +25,47 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+
+/* Counter animation */
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-count {
+  animation: countUp 0.5s ease-out forwards;
 }

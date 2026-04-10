@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 
 const sectores = [
   "Alimentos y Bebidas",
@@ -25,7 +26,6 @@ export default function ContactoPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: connect to backend API
     alert("Mensaje enviado. Nos pondremos en contacto pronto.");
   };
 
@@ -38,122 +38,213 @@ export default function ContactoPage() {
   };
 
   return (
-    <section className="py-16">
+    <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold italic text-primary mb-4 border-b pb-4">
-          Contáctenos
-        </h1>
-
-        <p className="text-muted-foreground mb-8">
-          Contáctenos para recibir un presupuesto que se ajuste a las
-          necesidades de su operación o escríbanos a{" "}
-          <a
-            href="mailto:carlos.garcia@applogistics.com.co"
-            className="text-accent font-medium hover:underline"
-          >
-            carlos.garcia@applogistics.com.co
-          </a>
-        </p>
-
-        <div className="grid lg:grid-cols-2 gap-10">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="nombre"
-              placeholder="Nombre *"
-              required
-              value={formData.nombre}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            />
-            <input
-              type="tel"
-              name="telefono"
-              placeholder="Teléfono *"
-              required
-              value={formData.telefono}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email *"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            />
-            <input
-              type="text"
-              name="asunto"
-              placeholder="Asunto *"
-              required
-              value={formData.asunto}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            />
-            <input
-              type="text"
-              name="empresa"
-              placeholder="Empresa *"
-              required
-              value={formData.empresa}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            />
-            <select
-              name="sector"
-              value={formData.sector}
-              onChange={handleChange}
-              className="w-full bg-primary text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
+        <div className="text-center mb-16">
+          <span className="text-accent font-semibold text-sm uppercase tracking-wider">
+            Hablemos
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mt-2 mb-4">
+            Contáctenos
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Reciba un presupuesto que se ajuste a las necesidades de su
+            operación o escríbanos a{" "}
+            <a
+              href="mailto:carlos.garcia@applogistics.com.co"
+              className="text-accent font-medium hover:underline"
             >
-              <option value="">Sector Económico</option>
-              {sectores.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <textarea
-              name="mensaje"
-              placeholder="Mensaje"
-              rows={5}
-              value={formData.mensaje}
-              onChange={handleChange}
-              className="w-full bg-primary text-white placeholder:text-white/60 px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-accent resize-none"
-            />
-            <div className="flex justify-end">
+              carlos.garcia@applogistics.com.co
+            </a>
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-10">
+          <div className="lg:col-span-3">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-2xl border p-8 shadow-sm space-y-5"
+            >
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Nombre *
+                  </label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    required
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Teléfono *
+                  </label>
+                  <input
+                    type="tel"
+                    name="telefono"
+                    required
+                    value={formData.telefono}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Empresa *
+                  </label>
+                  <input
+                    type="text"
+                    name="empresa"
+                    required
+                    value={formData.empresa}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Asunto *
+                  </label>
+                  <input
+                    type="text"
+                    name="asunto"
+                    required
+                    value={formData.asunto}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Sector Económico
+                  </label>
+                  <select
+                    name="sector"
+                    value={formData.sector}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+                  >
+                    <option value="">Seleccionar...</option>
+                    {sectores.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Mensaje
+                </label>
+                <textarea
+                  name="mensaje"
+                  rows={4}
+                  value={formData.mensaje}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all resize-none"
+                />
+              </div>
+
               <button
                 type="submit"
-                className="bg-accent text-white px-8 py-3 rounded font-semibold hover:opacity-90 transition-opacity"
+                className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-10 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
               >
-                Enviar
+                <Send className="h-4 w-4" />
+                Enviar Mensaje
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
 
-          <div className="hidden lg:flex items-start justify-center">
-            <div className="w-full max-w-sm aspect-square bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="text-5xl font-extrabold text-primary mb-2">
-                  APP
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-primary rounded-2xl p-8 text-white">
+              <h3 className="text-lg font-bold mb-6">
+                Información de Contacto
+              </h3>
+              <div className="space-y-5">
+                <a
+                  href="tel:+573153402545"
+                  className="flex items-center gap-4 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/50">Teléfono</p>
+                    <p className="font-medium">(57) 315 340 25 45</p>
+                  </div>
+                </a>
+                <a
+                  href="mailto:info@applogistics.com.co"
+                  className="flex items-center gap-4 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/50">Email</p>
+                    <p className="font-medium">info@applogistics.com.co</p>
+                  </div>
+                </a>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/50">Oficina Central</p>
+                    <p className="font-medium">Bogotá, Colombia</p>
+                  </div>
                 </div>
-                <div className="text-lg text-muted-foreground font-medium">
-                  Logistics SAS
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/50">Cobertura</p>
+                    <p className="font-medium">
+                      Bogotá, Medellín, Cali, Barranquilla
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="mt-8">
-          <Link
-            href="/empleo"
-            className="inline-block border-2 border-accent text-accent px-8 py-3 rounded-lg font-semibold hover:bg-accent hover:text-white transition-colors w-full text-center"
-          >
-            Si deseas trabajar con nosotros haz click aquí
-          </Link>
+            <Link
+              href="/empleo"
+              className="block bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/20 rounded-2xl p-6 text-center hover:border-accent/40 transition-all group"
+            >
+              <p className="text-accent font-bold mb-1 group-hover:underline">
+                ¿Quieres trabajar con nosotros?
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Deja tu hoja de vida aquí
+              </p>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

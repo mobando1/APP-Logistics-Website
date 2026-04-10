@@ -1,93 +1,75 @@
 import { Link } from "wouter";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
+
+const highlights = [
+  "Personal certificado SENA",
+  "Procesos BASC",
+  "Cobertura en 4 ciudades",
+];
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="grid grid-cols-3 gap-1">
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2.5 h-2.5 bg-primary rounded-sm"
-                  />
-                ))}
-              </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary leading-tight">
-                APP Logistics
-              </h1>
-            </div>
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&h=900&fit=crop')",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40" />
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-              Expertos en manipulación de mercancía
-            </h2>
-
-            <p className="text-muted-foreground leading-relaxed mb-8">
-              Apoyamos tu cadena logística fortaleciendo uno de los eslabones
-              más débiles de la misma: las operaciones de cargue y descargue de
-              mercancías. Nos hemos especializado en esta operación con el
-              objetivo de dar tranquilidad a nuestros clientes y al mercado.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/cotizacion"
-                className="inline-flex items-center justify-center gap-2 bg-accent text-white px-8 py-3 rounded-lg text-base font-semibold hover:opacity-90 transition-opacity"
-              >
-                Solicitar Cotización
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/servicios"
-                className="inline-flex items-center justify-center gap-2 border-2 border-primary/30 text-primary px-8 py-3 rounded-lg text-base font-semibold hover:bg-primary/5 transition-colors"
-              >
-                Nuestros Servicios
-                <ChevronRight className="h-5 w-5" />
-              </Link>
-            </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
+        <div className="max-w-2xl">
+          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-sm font-medium px-4 py-2 rounded-full mb-8 animate-fade-in-up">
+            <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+            Empresa 100% colombiana desde 2012
           </div>
 
-          <div className="hidden lg:flex justify-center">
-            <div className="w-full max-w-md aspect-square bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="text-6xl font-extrabold text-accent mb-2">
-                  +14
-                </div>
-                <div className="text-lg text-muted-foreground font-medium">
-                  Años de experiencia
-                </div>
-                <div className="mt-4 text-sm text-muted-foreground">
-                  Empresa 100% colombiana desde 2012
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-6 animate-fade-in-up animation-delay-100 text-balance">
+            Expertos en{" "}
+            <span className="text-accent">manipulación</span>
+            <br />
+            de mercancía
+          </h1>
 
-      <div className="bg-primary">
-        <div className="max-w-7xl mx-auto">
-          <nav className="flex">
-            {[
-              { label: "Inicio", href: "/" },
-              { label: "Servicios", href: "/servicios" },
-              { label: "Nosotros", href: "/nosotros" },
-              { label: "Contáctenos", href: "/contacto" },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex-1 text-center py-3 text-white text-sm font-medium hover:bg-accent transition-colors"
+          <p className="text-lg sm:text-xl text-white/85 mb-8 leading-relaxed animate-fade-in-up animation-delay-200 max-w-xl">
+            Fortalecemos tu cadena logística con operaciones de cargue y
+            descargue, distribución urbana, bodega e inventarios. Tranquilidad
+            para tu operación.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 mb-10 animate-fade-in-up animation-delay-300">
+            <Link
+              href="/contacto"
+              className="inline-flex items-center justify-center gap-2 bg-accent text-white px-8 py-4 rounded-xl text-base font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 hover:-translate-y-0.5"
+            >
+              Solicitar Cotización
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/servicios"
+              className="inline-flex items-center justify-center gap-2 bg-white/15 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-base font-semibold hover:bg-white/25 transition-all border border-white/20"
+            >
+              Conoce Nuestros Servicios
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-4 animate-fade-in-up animation-delay-400">
+            {highlights.map((h) => (
+              <div
+                key={h}
+                className="flex items-center gap-2 text-sm text-white/80"
               >
-                {item.label}
-              </Link>
+                <CheckCircle className="h-4 w-4 text-accent" />
+                {h}
+              </div>
             ))}
-          </nav>
+          </div>
         </div>
       </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 }

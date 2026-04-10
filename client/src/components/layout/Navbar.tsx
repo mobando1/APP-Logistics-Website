@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@client/lib/utils";
 
 const navLinks = [
@@ -12,45 +12,83 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled
+          ? "bg-white/95 backdrop-blur-md shadow-md"
+          : "bg-white"
+      )}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="grid grid-cols-3 gap-0.5">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="grid grid-cols-3 gap-[3px] transition-transform group-hover:scale-110">
               {[...Array(9)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-2 h-2 bg-primary rounded-sm"
+                  className="w-2 h-2 bg-primary rounded-[2px]"
                 />
               ))}
             </div>
-            <span className="text-xl font-bold text-primary">
-              APP Logistics
-            </span>
+            <div className="leading-none">
+              <span className="text-lg font-extrabold text-primary tracking-tight">
+                APP Logistics
+              </span>
+              <span className="hidden sm:block text-[10px] text-muted-foreground font-medium tracking-wider uppercase">
+                Expertos en manipulación de mercancía
+              </span>
+            </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-4 py-2 text-sm font-medium rounded transition-colors",
+                  "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                   location === link.href
-                    ? "bg-primary text-white"
-                    : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                    ? "text-accent font-semibold"
+                    : "text-foreground/70 hover:text-primary hover:bg-primary/5"
                 )}
               >
                 {link.label}
+                {location === link.href && (
+                  <div className="h-0.5 bg-accent rounded-full mt-0.5" />
+                )}
               </Link>
             ))}
+
+            <div className="ml-4 flex items-center gap-3">
+              <a
+                href="tel:+573153402545"
+                className="hidden xl:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Phone className="h-4 w-4" />
+                315 340 25 45
+              </a>
+              <Link
+                href="/contacto"
+                className="bg-accent hover:bg-accent/90 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm shadow-accent/25"
+              >
+                Cotizar
+              </Link>
+            </div>
           </div>
 
           <button
-            className="md:hidden p-2"
+            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
           >
@@ -59,27 +97,37 @@ export default function Navbar() {
         </div>
       </div>
 
-      {open && (
-        <div className="md:hidden bg-white border-t">
-          <div className="px-4 py-3 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "block py-2 px-3 text-sm font-medium rounded",
-                  location === link.href
-                    ? "bg-primary text-white"
-                    : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+      <div
+        className={cn(
+          "lg:hidden overflow-hidden transition-all duration-300",
+          open ? "max-h-80 border-t" : "max-h-0"
+        )}
+      >
+        <div className="bg-white px-4 py-4 space-y-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className={cn(
+                "block py-3 px-4 text-sm font-medium rounded-lg transition-colors",
+                location === link.href
+                  ? "bg-accent/10 text-accent font-semibold"
+                  : "text-foreground/70 hover:bg-muted"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link
+            href="/contacto"
+            onClick={() => setOpen(false)}
+            className="block bg-accent text-white text-center px-6 py-3 rounded-lg text-sm font-semibold mt-3"
+          >
+            Solicitar Cotización
+          </Link>
         </div>
-      )}
+      </div>
     </nav>
   );
 }
