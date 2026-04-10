@@ -11,6 +11,7 @@ import CTASection from "./components/sections/CTASection";
 import ServiciosPage from "./pages/Servicios";
 import NosotrosPage from "./pages/Nosotros";
 import ContactoPage from "./pages/Contacto";
+import EmpleoPage from "./pages/Empleo";
 
 function HomePage() {
   return (
@@ -23,30 +24,6 @@ function HomePage() {
       <ClientsSection />
       <CTASection />
     </>
-  );
-}
-
-function EmpleoPage() {
-  return (
-    <section className="py-20">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span className="text-accent font-semibold text-sm uppercase tracking-wider">
-          Únete al equipo
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mt-2 mb-4">
-          Deja tu Hoja de Vida
-        </h1>
-        <p className="text-muted-foreground text-lg mb-8">
-          ¿Deseas hacer parte de nuestro equipo? Déjanos tu hoja de vida y nos
-          pondremos en contacto contigo.
-        </p>
-        <div className="bg-muted rounded-2xl p-12 text-center">
-          <p className="text-muted-foreground">
-            Formulario de aplicación - Próximamente
-          </p>
-        </div>
-      </div>
-    </section>
   );
 }
 
