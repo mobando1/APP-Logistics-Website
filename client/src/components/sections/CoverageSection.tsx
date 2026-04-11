@@ -9,17 +9,17 @@ const cities = [
   {
     name: "Medellín",
     detail: "Desde enero 2020",
-    image: "https://images.unsplash.com/photo-1599413987323-b2b8e2f53b6c?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1?w=400&h=300&fit=crop",
   },
   {
     name: "Cali",
     detail: "Desde marzo 2022",
-    image: "https://images.unsplash.com/photo-1614795000954-7e498d0a2c7c?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1616091216791-a5360b5fc78a?w=400&h=300&fit=crop",
   },
   {
     name: "Barranquilla",
     detail: "Desde marzo 2022",
-    image: "https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=400&h=300&fit=crop",
   },
 ];
 
