@@ -4,22 +4,22 @@ const cities = [
   {
     name: "Bogotá",
     detail: "Oficina central",
-    image: "https://images.unsplash.com/photo-1536086845735-93271b4a64e1?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=400&h=300&fit=crop",
   },
   {
     name: "Medellín",
     detail: "Desde enero 2020",
-    image: "https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1633627425472-d07ac65e2a36?w=400&h=300&fit=crop",
   },
   {
     name: "Cali",
     detail: "Desde marzo 2022",
-    image: "https://images.unsplash.com/photo-1616091216791-a5360b5fc78a?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1728588519059-a62e06050425?w=400&h=300&fit=crop",
   },
   {
     name: "Barranquilla",
     detail: "Desde marzo 2022",
-    image: "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1534586171786-479ba91943f5?w=400&h=300&fit=crop",
   },
 ];
 
