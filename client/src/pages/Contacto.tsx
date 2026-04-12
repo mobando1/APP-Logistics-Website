@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
+
+const API_URL = "https://app-server-production-65d5.up.railway.app";
 
 const sectores = [
   "Alimentos y Bebidas",
@@ -24,9 +26,38 @@ export default function ContactoPage() {
     mensaje: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Mensaje enviado. Nos pondremos en contacto pronto.");
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const payload = {
+        nombreEmpresa: formData.empresa || formData.nombre,
+        contactoNombre: formData.nombre,
+        contactoEmail: formData.email,
+        contactoTelefono: formData.telefono,
+        servicioInteres: formData.asunto || formData.sector,
+        mensaje: formData.mensaje,
+      };
+
+      const res = await fetch(`${API_URL}/api/cotizaciones`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Error al enviar");
+      setSubmitted(true);
+    } catch {
+      setError("Error al enviar. Intenta de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (

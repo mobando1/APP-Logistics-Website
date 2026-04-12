@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Upload, Send, AlertCircle } from "lucide-react";
+import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+
+const API_URL = "https://app-server-production-65d5.up.railway.app";
 
 const cargos = [
   "Operario de Cargue y Descargue",
@@ -79,6 +81,7 @@ export default function EmpleoPage() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
+    documento: "",
     email: "",
     telefono: "",
     cargo: "",
@@ -90,12 +93,16 @@ export default function EmpleoPage() {
     comentarios: "",
   });
 
-  const [files, setFiles] = useState<Record<string, string>>({
+  const [fileNames, setFileNames] = useState<Record<string, string>>({
     documentoIdentidad: "",
     hojaVida: "",
     medidasCorrectivas: "",
     antecedentes: "",
   });
+  const [fileData, setFileData] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -107,15 +114,79 @@ export default function EmpleoPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFiles({ ...files, [e.target.name]: file.name });
+    if (!file) return;
+    setFileNames({ ...fileNames, [e.target.name]: file.name });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFileData((prev) => ({ ...prev, [e.target.name]: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+
+    try {
+      // Split nombre into primer/segundo
+      const nombreParts = formData.nombre.trim().split(/\s+/);
+      const apellidoParts = formData.apellido.trim().split(/\s+/);
+
+      const payload = {
+        primerNombre: nombreParts[0] || "",
+        segundoNombre: nombreParts.slice(1).join(" ") || null,
+        primerApellido: apellidoParts[0] || "",
+        segundoApellido: apellidoParts.slice(1).join(" ") || null,
+        tipoDocumento: "CC",
+        numeroDocumento: formData.documento,
+        celular: formData.telefono,
+        email: formData.email,
+        ciudad: formData.ciudad,
+        cargoAspira: formData.cargo,
+        experiencia: [
+          formData.comentarios,
+          formData.identidadGenero ? `Género: ${formData.identidadGenero}` : "",
+          formData.grupoEtnico ? `Etnia: ${formData.grupoEtnico}` : "",
+          formData.orientacionSexual ? `Orientación: ${formData.orientacionSexual}` : "",
+          formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
+        ].filter(Boolean).join("\n"),
+        hojaVidaUrl: fileData.hojaVida || null,
+        hojaVidaNombre: fileNames.hojaVida || null,
+      };
+
+      const res = await fetch(`${API_URL}/api/candidatos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Error al enviar");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al enviar. Intenta de nuevo.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Hoja de vida enviada exitosamente. Nos pondremos en contacto contigo.");
-  };
+  if (submitted) {
+    return (
+      <section className="py-20">
+        <div className="max-w-xl mx-auto px-4 text-center">
+          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-primary mb-2">¡Hoja de vida enviada!</h2>
+          <p className="text-muted-foreground">
+            Gracias por tu interés en APP Logistics. Revisaremos tu información y nos pondremos en contacto contigo.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20">
@@ -190,6 +261,21 @@ export default function EmpleoPage() {
                 className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Número de Cédula
+            </label>
+            <input
+              type="text"
+              name="documento"
+              required
+              value={formData.documento}
+              onChange={handleChange}
+              placeholder="Número de cédula"
+              className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+            />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">
@@ -269,13 +355,13 @@ export default function EmpleoPage() {
               label="Documento de Identidad"
               name="documentoIdentidad"
               onChange={handleFileChange}
-              fileName={files.documentoIdentidad}
+              fileName={fileNames.documentoIdentidad}
             />
             <FileUpload
               label="Hoja de Vida"
               name="hojaVida"
               onChange={handleFileChange}
-              fileName={files.hojaVida}
+              fileName={fileNames.hojaVida}
             />
           </div>
 
@@ -284,13 +370,13 @@ export default function EmpleoPage() {
               label="Medidas Correctivas"
               name="medidasCorrectivas"
               onChange={handleFileChange}
-              fileName={files.medidasCorrectivas}
+              fileName={fileNames.medidasCorrectivas}
             />
             <FileUpload
               label="Antecedentes Policía Nacional"
               name="antecedentes"
               onChange={handleFileChange}
-              fileName={files.antecedentes}
+              fileName={fileNames.antecedentes}
             />
           </div>
 
@@ -380,13 +466,20 @@ export default function EmpleoPage() {
             />
           </div>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="text-center pt-2">
             <button
               type="submit"
-              className="bg-accent hover:bg-accent/90 text-white px-12 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center gap-2"
+              disabled={submitting}
+              className="bg-accent hover:bg-accent/90 text-white px-12 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center gap-2 disabled:opacity-50"
             >
-              <Send className="h-4 w-4" />
-              Enviar
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {submitting ? "Enviando..." : "Enviar"}
             </button>
           </div>
         </form>
