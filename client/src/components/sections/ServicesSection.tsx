@@ -40,7 +40,7 @@ const services = [
     title: "Acondicionamiento Secundario",
     description:
       "Servicios de reempacado, toma de seriales y reacondicionamiento para integrar servicios complementarios.",
-    image: "https://images.unsplash.com/photo-1590247813693-5541d1c573ef?w=800&h=500&fit=crop",
+    image: "/servicios/acondicionamiento.jpg",
     iconColor: "text-rose-600",
   },
   {
