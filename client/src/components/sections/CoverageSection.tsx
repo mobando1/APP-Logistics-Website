@@ -19,7 +19,7 @@ const cities = [
   {
     name: "Barranquilla",
     detail: "Desde marzo 2022",
-    image: "https://images.unsplash.com/photo-1534586171786-479ba91943f5?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1548372007-09f87bdf7a35?w=400&h=300&fit=crop",
   },
 ];
 
