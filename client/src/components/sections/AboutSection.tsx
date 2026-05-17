@@ -5,7 +5,7 @@ const valores = [
   {
     icon: GraduationCap,
     title: "Personal altamente capacitado y certificado",
-    text: "Equipo formado en buenas prácticas, manipulación de alimentos y seguridad industrial, con certificación SENA.",
+    text: "Equipo formado en buenas prácticas y seguridad industrial, con certificación SENA en despacho de mercancías.",
   },
   {
     icon: ShieldCheck,
@@ -36,7 +36,7 @@ export default function AboutSection() {
               <p>
                 Nacimos en 2012 como una solución para empresas que buscan
                 eficiencia en sus procesos logísticos: cargue y descargue,
-                bodega, maquila e inventarios.
+                operaciones de bodega, maquila, inventarios entre otros.
               </p>
               <p>
                 Más de una década especializándonos en distribución y
