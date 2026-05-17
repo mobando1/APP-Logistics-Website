@@ -10,7 +10,6 @@ const timeline = [
 
 const certifications = [
   "Buenas Prácticas de Manufactura, Transporte y Almacenamiento",
-  "Manipulación de Alimentos",
   "Seguridad Industrial",
   "Certificación SENA en despacho de mercancías",
   "En proceso: certificación en cargue y descargue",
@@ -52,9 +51,9 @@ export default function NosotrosPage() {
               </p>
               <p>
                 Permanentemente capacitamos a nuestro personal en Buenas
-                Prácticas (Manufactura, Transporte, Almacenamiento),
-                Manipulación de Alimentos, Seguridad y esto lo que nos permite
-                entregar un servicio óptimo; actualmente el 95% de nuestro
+                Prácticas (Manufactura, Transporte, Almacenamiento) y
+                Seguridad, lo que nos permite entregar un servicio óptimo;
+                actualmente el 95% de nuestro
                 personal tiene certificación expedida por el SENA en "Despachar
                 mercancías según métodos de preparación de pedidos y sistema de
                 gestión".
