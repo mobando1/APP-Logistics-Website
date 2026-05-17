@@ -1,25 +1,32 @@
-import { Shield, GraduationCap, TrendingUp, Award } from "lucide-react";
+import { Award, TrendingUp } from "lucide-react";
 
-const highlights = [
+type Highlight = {
+  title: string;
+  text: string;
+  logo?: string;
+  icon?: typeof Award;
+};
+
+const highlights: Highlight[] = [
   {
-    icon: GraduationCap,
     title: "95% Certificado SENA",
     text: 'Personal con certificación en "Despachar mercancías según métodos de preparación de pedidos y sistema de gestión".',
+    logo: "/certificaciones/sena.svg",
   },
   {
-    icon: Shield,
     title: "Seguridad BASC",
     text: "Miembros activos del Frente de Seguridad Empresarial de la Policía Nacional. Procesos basados en BASC Capítulo Bogotá.",
+    logo: "/certificaciones/basc.svg",
   },
   {
-    icon: Award,
     title: "SG-SST al 90%",
     text: "Avance del 90% en implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo. Permisos para trabajo en alturas.",
+    icon: Award,
   },
   {
-    icon: TrendingUp,
     title: "Mejora Continua",
     text: "Análisis constante de operaciones para proponer mejoras que reduzcan tiempos y costos para nuestros clientes.",
+    icon: TrendingUp,
   },
 ];
 
@@ -27,8 +34,18 @@ export default function AboutSection() {
   return (
     <section className="py-20 sm:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
+            <div className="relative rounded-2xl overflow-hidden shadow-lg mb-8 group">
+              <img
+                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&h=600&fit=crop"
+                alt="Equipo APP Logistics en operación"
+                loading="lazy"
+                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
+            </div>
+
             <span className="text-accent font-semibold text-sm uppercase tracking-wider">
               Sobre nosotros
             </span>
@@ -62,12 +79,20 @@ export default function AboutSection() {
             {highlights.map((item) => (
               <div
                 key={item.title}
-                className="p-6 rounded-2xl bg-muted hover:bg-gradient-to-br hover:from-primary/5 hover:to-accent/5 transition-all duration-300 group"
+                className="p-6 rounded-2xl bg-white border border-border shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300"
               >
-                <div className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:shadow-md transition-shadow">
-                  <item.icon className="h-5 w-5 text-accent" />
+                <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center mb-4 p-2">
+                  {item.logo ? (
+                    <img
+                      src={item.logo}
+                      alt={item.title}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  ) : item.icon ? (
+                    <item.icon className="h-6 w-6 text-accent" />
+                  ) : null}
                 </div>
-                <h3 className="font-bold text-foreground mb-2 text-sm">
+                <h3 className="font-bold text-primary mb-2 text-sm">
                   {item.title}
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
