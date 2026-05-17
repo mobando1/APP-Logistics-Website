@@ -90,18 +90,9 @@ export default function ServicesSection() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-6 translate-y-1/2",
-                    "w-12 h-12 rounded-xl bg-white shadow-md",
-                    "flex items-center justify-center"
-                  )}
-                >
-                  <service.icon className={cn("h-6 w-6", service.iconColor)} />
-                </div>
               </div>
 
-              <div className="flex flex-col flex-1 pt-8 px-6 pb-6">
+              <div className="flex flex-col flex-1 p-6">
                 <h3 className="text-lg font-bold text-primary mb-2 group-hover:text-accent transition-colors">
                   {service.title}
                 </h3>
