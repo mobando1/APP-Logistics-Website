@@ -8,17 +8,17 @@ const cities = [
   },
   {
     name: "Medellín",
-    detail: "Desde enero 2020",
+    detail: "",
     image: "https://images.unsplash.com/photo-1633627425472-d07ac65e2a36?w=400&h=300&fit=crop",
   },
   {
     name: "Cali",
-    detail: "Desde marzo 2022",
+    detail: "",
     image: "https://images.unsplash.com/photo-1728588519059-a62e06050425?w=400&h=300&fit=crop",
   },
   {
     name: "Barranquilla",
-    detail: "Desde marzo 2022",
+    detail: "",
     image: "https://images.unsplash.com/photo-1548372007-09f87bdf7a35?w=400&h=300&fit=crop",
   },
 ];
@@ -60,7 +60,9 @@ export default function CoverageSection() {
                     {city.name}
                   </h3>
                 </div>
-                <p className="text-sm text-white/70">{city.detail}</p>
+                {city.detail && (
+                  <p className="text-sm text-white/70">{city.detail}</p>
+                )}
               </div>
             </div>
           ))}
