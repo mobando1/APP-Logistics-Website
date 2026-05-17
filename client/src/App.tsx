@@ -17,11 +17,11 @@ function HomePage() {
   return (
     <>
       <HeroSection />
+      <ClientsSection />
       <ServicesSection />
       <StatsSection />
       <AboutSection />
       <CoverageSection />
-      <ClientsSection />
       <CTASection />
     </>
   );
