@@ -1,21 +1,21 @@
-import { GraduationCap, MapPin, TrendingUp, ArrowRight } from "lucide-react";
+import { GraduationCap, ShieldCheck, Award, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 
 const valores = [
   {
     icon: GraduationCap,
-    title: "Personal capacitado",
-    text: "Equipo entrenado en buenas prácticas, manipulación de alimentos y seguridad industrial.",
+    title: "Personal altamente capacitado y certificado",
+    text: "Equipo formado en buenas prácticas, manipulación de alimentos y seguridad industrial, con certificación SENA.",
   },
   {
-    icon: MapPin,
-    title: "Cobertura nacional",
-    text: "Operamos en Bogotá, Medellín, Cali y Barranquilla — donde nos necesites.",
+    icon: ShieldCheck,
+    title: "Seguridad, cumplimiento y eficiencia en cada operación",
+    text: "Procesos basados en estándares BASC, SG-SST y la normatividad vigente, para entregar resultados confiables.",
   },
   {
-    icon: TrendingUp,
-    title: "Mejora continua",
-    text: "Analizamos cada operación para reducir tiempos y costos a nuestros clientes.",
+    icon: Award,
+    title: "Experiencia y especialización en operaciones logísticas",
+    text: "Más de una década enfocados en distribución, bodega, inventarios y cargue/descargue para empresas de todo Colombia.",
   },
 ];
 
