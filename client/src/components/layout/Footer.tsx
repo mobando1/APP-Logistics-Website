@@ -9,9 +9,9 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-5">
               <img
-                src="/logo-app.png"
+                src="/logo-app-blanco.png"
                 alt="APP Logistics"
-                className="h-10 w-auto brightness-0 invert"
+                className="h-10 w-auto"
               />
             </div>
             <p className="text-sm text-white/60 mb-4 leading-relaxed">
