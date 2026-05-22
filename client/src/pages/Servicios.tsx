@@ -49,7 +49,7 @@ const services = [
     title: "Acondicionamiento Secundario",
     description:
       "Con el objeto de integrar servicios complementarios, hemos iniciado procesos de acondicionamiento secundario, apoyando a nuestros clientes en actividades como reempacado, toma de seriales y reacondicionamiento.",
-    image: "https://images.unsplash.com/photo-1590247813693-5541d1c573ef?w=600&h=400&fit=crop",
+    image: "/servicios/acondicionamiento.jpg",
     color: "from-rose-500/10 to-rose-600/5",
     iconColor: "text-rose-600",
   },
