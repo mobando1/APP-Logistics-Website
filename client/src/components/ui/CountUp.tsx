@@ -12,9 +12,9 @@ export default function CountUp({
   end,
   prefix = "",
   suffix = "",
-  duration = 1500,
+  duration = 2200,
 }: CountUpProps) {
-  const [ref, inView] = useInView<HTMLSpanElement>(0.4);
+  const [ref, inView] = useInView<HTMLSpanElement>(0);
   const [value, setValue] = useState(0);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ export default function CountUp({
 
     const tick = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
-      // ease-out
-      const eased = 1 - Math.pow(1 - progress, 3);
+      // ease-out cuadrático (menos front-loaded que el cúbico)
+      const eased = 1 - Math.pow(1 - progress, 2);
       setValue(Math.round(eased * end));
       if (progress < 1) {
         frame = requestAnimationFrame(tick);
