@@ -7,18 +7,12 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="grid grid-cols-3 gap-[3px]">
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 bg-accent rounded-[2px]"
-                  />
-                ))}
-              </div>
-              <span className="text-lg font-extrabold tracking-tight">
-                APP Logistics
-              </span>
+            <div className="mb-5">
+              <img
+                src="/logo-app.png"
+                alt="APP Logistics"
+                className="h-10 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-sm text-white/60 mb-4 leading-relaxed">
               Empresa 100% colombiana fundada en 2012. Expertos en manipulación

@@ -32,23 +32,12 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="grid grid-cols-3 gap-[3px] transition-transform group-hover:scale-110">
-              {[...Array(9)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-primary rounded-[2px]"
-                />
-              ))}
-            </div>
-            <div className="leading-none">
-              <span className="text-lg font-extrabold text-primary tracking-tight">
-                APP Logistics
-              </span>
-              <span className="hidden sm:block text-[10px] text-muted-foreground font-medium tracking-wider uppercase">
-                Expertos en manipulación de mercancía
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <img
+              src="/logo-app.png"
+              alt="APP Logistics"
+              className="h-9 lg:h-11 w-auto transition-transform group-hover:scale-105"
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">
