@@ -18,7 +18,7 @@ const services = [
     title: "Cargue y Descargue",
     description:
       "Apoyo a cargue y descargue de todo tipo de mercancía y de todo tipo de vehículos: Tractomulas, Minimulas, Dobletroque, Sencillos, Turbos.",
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=500&fit=crop",
+    image: "/servicios/cargue-descargue.jpg",
     iconColor: "text-accent",
   },
   {

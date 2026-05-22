@@ -19,7 +19,7 @@ const services = [
     title: "Cargue y Descargue de Mercancías",
     description:
       "Ofrecemos servicios en el punto que nuestro cliente lo requiera para realizar cargues y descargues de productos en modo masivo o unitario y de cualquier tipo de mercancía. El personal de APP Logistics está comprometido con el mejoramiento continuo, por ello realizamos análisis continuos sobre nuestras operaciones con el fin de proponer mejoras para este tipo de actividades, de esta manera disminuir tiempos y por ende costos para nuestros clientes.",
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&h=400&fit=crop",
+    image: "/servicios/cargue-descargue.jpg",
     color: "from-orange-500/10 to-orange-600/5",
     iconColor: "text-accent",
   },
