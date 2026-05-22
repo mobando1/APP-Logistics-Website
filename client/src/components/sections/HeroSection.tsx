@@ -23,7 +23,7 @@ export default function HeroSection() {
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-sm font-medium px-4 py-2 rounded-full mb-8 animate-fade-in-up">
             <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            Más de una década fortaleciendo operaciones logísticas en Colombia
+            +14 años fortaleciendo operaciones logísticas en Colombia
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-6 animate-fade-in-up animation-delay-100 text-balance">
