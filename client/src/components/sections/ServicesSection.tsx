@@ -4,6 +4,7 @@ import { cn } from "@client/lib/utils";
 
 const services = [
   {
+    id: "distribucion",
     icon: Truck,
     title: "Distribución de Mercancías",
     description:
@@ -12,6 +13,7 @@ const services = [
     iconColor: "text-blue-600",
   },
   {
+    id: "cargue-descargue",
     icon: Package,
     title: "Cargue y Descargue",
     description:
@@ -20,6 +22,7 @@ const services = [
     iconColor: "text-accent",
   },
   {
+    id: "bodega",
     icon: Warehouse,
     title: "Apoyo en Bodega",
     description:
@@ -28,6 +31,7 @@ const services = [
     iconColor: "text-emerald-600",
   },
   {
+    id: "inventarios",
     icon: ClipboardList,
     title: "Inventarios",
     description:
@@ -36,6 +40,7 @@ const services = [
     iconColor: "text-violet-600",
   },
   {
+    id: "acondicionamiento",
     icon: Boxes,
     title: "Acondicionamiento Secundario",
     description:
@@ -44,6 +49,7 @@ const services = [
     iconColor: "text-rose-600",
   },
   {
+    id: "asesorias",
     icon: GraduationCap,
     title: "Asesorías y Capacitación",
     description:
@@ -74,7 +80,7 @@ export default function ServicesSection() {
           {services.map((service) => (
             <Link
               key={service.title}
-              href="/servicios"
+              href={`/servicios#${service.id}`}
               className={cn(
                 "group relative flex flex-col rounded-2xl overflow-hidden",
                 "bg-white border border-border",

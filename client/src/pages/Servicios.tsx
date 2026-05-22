@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Truck, Package, Warehouse, ClipboardList, Boxes, GraduationCap } from "lucide-react";
 import { cn } from "@client/lib/utils";
 
 const services = [
   {
+    id: "distribucion",
     icon: Truck,
     title: "Distribución de Mercancías",
     description:
@@ -12,6 +14,7 @@ const services = [
     iconColor: "text-blue-600",
   },
   {
+    id: "cargue-descargue",
     icon: Package,
     title: "Cargue y Descargue de Mercancías",
     description:
@@ -21,6 +24,7 @@ const services = [
     iconColor: "text-accent",
   },
   {
+    id: "bodega",
     icon: Warehouse,
     title: "Operaciones en Bodega",
     description:
@@ -30,6 +34,7 @@ const services = [
     iconColor: "text-emerald-600",
   },
   {
+    id: "inventarios",
     icon: ClipboardList,
     title: "Inventarios",
     description:
@@ -39,6 +44,7 @@ const services = [
     iconColor: "text-violet-600",
   },
   {
+    id: "acondicionamiento",
     icon: Boxes,
     title: "Acondicionamiento Secundario",
     description:
@@ -48,6 +54,7 @@ const services = [
     iconColor: "text-rose-600",
   },
   {
+    id: "asesorias",
     icon: GraduationCap,
     title: "Asesorías y Capacitación",
     description:
@@ -59,6 +66,18 @@ const services = [
 ];
 
 export default function ServiciosPage() {
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (el) {
+      setTimeout(
+        () => el.scrollIntoView({ behavior: "smooth", block: "start" }),
+        100
+      );
+    }
+  }, []);
+
   return (
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,8 +98,9 @@ export default function ServiciosPage() {
           {services.map((service, i) => (
             <div
               key={service.title}
+              id={service.id}
               className={cn(
-                "flex flex-col gap-8 items-center",
+                "flex flex-col gap-8 items-center scroll-mt-24",
                 i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
               )}
             >
