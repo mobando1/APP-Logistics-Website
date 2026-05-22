@@ -1,0 +1,47 @@
+import { useEffect, useState } from "react";
+import { useInView } from "@client/lib/useInView";
+
+type CountUpProps = {
+  end: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+};
+
+export default function CountUp({
+  end,
+  prefix = "",
+  suffix = "",
+  duration = 1500,
+}: CountUpProps) {
+  const [ref, inView] = useInView<HTMLSpanElement>(0.4);
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+
+    let frame: number;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      // ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(eased * end));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [inView, end, duration]);
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {value}
+      {suffix}
+    </span>
+  );
+}

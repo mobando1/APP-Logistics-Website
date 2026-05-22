@@ -1,27 +1,36 @@
 import { Calendar, Award, Users, MapPin } from "lucide-react";
+import CountUp from "@client/components/ui/CountUp";
 
 const stats = [
   {
     icon: Calendar,
-    value: "+14",
+    value: 14,
+    prefix: "+",
+    suffix: "",
     label: "Años de experiencia",
     detail: "Desde 2012",
   },
   {
     icon: Award,
-    value: "95%",
+    value: 95,
+    prefix: "",
+    suffix: "%",
     label: "Personal certificado",
     detail: "Certificación SENA",
   },
   {
     icon: Users,
-    value: "100+",
+    value: 100,
+    prefix: "",
+    suffix: "+",
     label: "Clientes satisfechos",
     detail: "En todo Colombia",
   },
   {
     icon: MapPin,
-    value: "4",
+    value: 4,
+    prefix: "",
+    suffix: "",
     label: "Ciudades de cobertura",
     detail: "Y creciendo",
   },
@@ -43,7 +52,7 @@ export default function StatsSection() {
                 <stat.icon className="h-7 w-7 text-accent" />
               </div>
               <div className="text-4xl sm:text-5xl font-extrabold text-white mb-1">
-                {stat.value}
+                <CountUp end={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
               </div>
               <div className="text-sm font-semibold text-white/90 mb-1">
                 {stat.label}

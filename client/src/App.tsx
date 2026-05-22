@@ -1,6 +1,8 @@
 import { Switch, Route } from "wouter";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import WhatsAppButton from "./components/layout/WhatsAppButton";
+import Reveal from "./components/ui/Reveal";
 import HeroSection from "./components/sections/HeroSection";
 import ServicesSection from "./components/sections/ServicesSection";
 import StatsSection from "./components/sections/StatsSection";
@@ -17,12 +19,12 @@ function HomePage() {
   return (
     <>
       <HeroSection />
-      <ClientsSection />
-      <ServicesSection />
-      <StatsSection />
-      <AboutSection />
-      <CoverageSection />
-      <CTASection />
+      <Reveal><ClientsSection /></Reveal>
+      <Reveal><ServicesSection /></Reveal>
+      <Reveal><StatsSection /></Reveal>
+      <Reveal><AboutSection /></Reveal>
+      <Reveal><CoverageSection /></Reveal>
+      <Reveal><CTASection /></Reveal>
     </>
   );
 }
@@ -73,6 +75,7 @@ export default function App() {
         </Switch>
       </main>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 }
