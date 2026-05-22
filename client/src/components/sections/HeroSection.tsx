@@ -14,10 +14,11 @@ export default function HeroSection() {
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&h=900&fit=crop')",
+            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&h=1080&fit=crop')",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40" />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/75 to-primary/25" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/50 via-transparent to-primary/20" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="max-w-2xl">
@@ -26,11 +27,9 @@ export default function HeroSection() {
             +14 años fortaleciendo operaciones logísticas en Colombia
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-6 animate-fade-in-up animation-delay-100 text-balance">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6 animate-fade-in-up animation-delay-100 text-balance">
             Expertos en{" "}
-            <span className="text-accent">manipulación</span>
-            <br />
-            de mercancía
+            <span className="text-accent">manipulación de mercancía</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-white/85 mb-8 leading-relaxed animate-fade-in-up animation-delay-200 max-w-xl">
@@ -56,13 +55,13 @@ export default function HeroSection() {
             </Link>
           </div>
 
-          <div className="flex flex-wrap gap-4 animate-fade-in-up animation-delay-400">
+          <div className="flex flex-wrap gap-3 animate-fade-in-up animation-delay-400">
             {highlights.map((h) => (
               <div
                 key={h}
-                className="flex items-center gap-2 text-sm text-white/80"
+                className="flex items-center gap-2 text-sm font-medium text-white/90 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-4 py-2"
               >
-                <CheckCircle className="h-4 w-4 text-accent" />
+                <CheckCircle className="h-4 w-4 text-accent shrink-0" />
                 {h}
               </div>
             ))}
