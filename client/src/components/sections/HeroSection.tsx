@@ -34,9 +34,10 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-lg sm:text-xl text-white/85 mb-8 leading-relaxed animate-fade-in-up animation-delay-200 max-w-xl">
-            Fortalecemos tu cadena logística con operaciones de cargue y
-            descargue, distribución urbana, bodega e inventarios. Tranquilidad
-            para tu operación.
+            Apoyamos la cadena logística fortaleciendo uno de los eslabones más
+            débiles de la misma: las operaciones de cargue y descargue de
+            mercancías. Nos hemos especializado en esta operación con el objetivo
+            de dar tranquilidad a nuestros clientes y al mercado.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-10 animate-fade-in-up animation-delay-300">
