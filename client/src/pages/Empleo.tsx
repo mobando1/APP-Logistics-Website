@@ -4,13 +4,25 @@ import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 const API_URL = "https://app-server-production-65d5.up.railway.app";
 
 const cargos = [
-  "Operario de Cargue y Descargue",
-  "Operario de Bodega",
-  "Auxiliar de Distribución",
-  "Auxiliar de Inventarios",
-  "Coordinador de Operaciones",
-  "Supervisor",
-  "Otro",
+  "Auxiliar de operaciones",
+  "Montacarguista",
+  "Conductor",
+  "Auxiliar administrativo",
+];
+
+const tiposDocumento = ["Cédula", "PEP"];
+
+const codigosPais = [
+  { code: "+57", pais: "Colombia" },
+  { code: "+58", pais: "Venezuela" },
+  { code: "+593", pais: "Ecuador" },
+  { code: "+51", pais: "Perú" },
+  { code: "+52", pais: "México" },
+  { code: "+1", pais: "EE.UU." },
+  { code: "+34", pais: "España" },
+  { code: "+56", pais: "Chile" },
+  { code: "+54", pais: "Argentina" },
+  { code: "+507", pais: "Panamá" },
 ];
 
 const ciudades = [
@@ -81,8 +93,10 @@ export default function EmpleoPage() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
+    tipoDocumento: "Cédula",
     documento: "",
     email: "",
+    codigoPais: "+57",
     telefono: "",
     cargo: "",
     ciudad: "",
@@ -138,9 +152,9 @@ export default function EmpleoPage() {
         segundoNombre: nombreParts.slice(1).join(" ") || null,
         primerApellido: apellidoParts[0] || "",
         segundoApellido: apellidoParts.slice(1).join(" ") || null,
-        tipoDocumento: "CC",
+        tipoDocumento: formData.tipoDocumento === "PEP" ? "PEP" : "CC",
         numeroDocumento: formData.documento,
-        celular: formData.telefono,
+        celular: `${formData.codigoPais} ${formData.telefono}`.trim(),
         email: formData.email,
         ciudad: formData.ciudad,
         cargoAspira: formData.cargo,
@@ -263,19 +277,39 @@ export default function EmpleoPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
-              Número de Cédula
-            </label>
-            <input
-              type="text"
-              name="documento"
-              required
-              value={formData.documento}
-              onChange={handleChange}
-              placeholder="Número de cédula"
-              className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-            />
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Tipo de documento
+              </label>
+              <select
+                name="tipoDocumento"
+                required
+                value={formData.tipoDocumento}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+              >
+                {tiposDocumento.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Número de identificación
+              </label>
+              <input
+                type="text"
+                name="documento"
+                required
+                value={formData.documento}
+                onChange={handleChange}
+                placeholder="Número de identificación"
+                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+              />
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">
@@ -297,15 +331,29 @@ export default function EmpleoPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 Teléfono
               </label>
-              <input
-                type="tel"
-                name="telefono"
-                required
-                value={formData.telefono}
-                onChange={handleChange}
-                placeholder="Teléfono"
-                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-              />
+              <div className="flex gap-2">
+                <select
+                  name="codigoPais"
+                  value={formData.codigoPais}
+                  onChange={handleChange}
+                  className="w-28 shrink-0 border rounded-xl px-2 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+                >
+                  {codigosPais.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} {c.pais}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  name="telefono"
+                  required
+                  value={formData.telefono}
+                  onChange={handleChange}
+                  placeholder="Teléfono"
+                  className="flex-1 min-w-0 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                />
+              </div>
             </div>
           </div>
 
