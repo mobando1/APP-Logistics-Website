@@ -110,19 +110,11 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
           <span className="text-xs text-white/40">
             &copy; {new Date().getFullYear()} APP Logistics SAS. Todos los
             derechos reservados.
           </span>
-          <a
-            href="https://twitter.com/applogistics_co"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-white/40 hover:text-accent transition-colors"
-          >
-            @applogistics.co
-          </a>
         </div>
       </div>
     </footer>
