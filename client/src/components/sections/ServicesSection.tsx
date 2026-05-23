@@ -36,7 +36,7 @@ const services = [
     title: "Inventarios",
     description:
       "Personal con experiencia en toma de inventarios y uso de terminales de RF para optimizar tiempos y calidad de información.",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=500&fit=crop",
+    image: "/servicios/inventarios.jpg",
     iconColor: "text-violet-600",
   },
   {
