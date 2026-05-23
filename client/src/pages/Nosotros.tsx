@@ -35,7 +35,7 @@ export default function NosotrosPage() {
 
           <div className="grid lg:grid-cols-2 gap-16 items-start mb-20">
             <div className="space-y-5 text-muted-foreground leading-relaxed">
-              <p className="text-lg">
+              <p>
                 APP Logistics es una empresa 100% colombiana, que nace en 2012
                 como una solución para todo tipo de empresas que ven
                 oportunidades de mejora en diferentes procesos logísticos como
@@ -51,9 +51,9 @@ export default function NosotrosPage() {
               </p>
               <p>
                 Permanentemente capacitamos a nuestro personal en Buenas
-                Prácticas (Manufactura, Transporte, Almacenamiento) y
-                Seguridad, lo que nos permite entregar un servicio óptimo;
-                actualmente el 95% de nuestro
+                Prácticas (manufactura, transporte, almacenamiento),
+                manipulación de alimentos y seguridad, lo que nos permite
+                entregar un servicio óptimo; actualmente el 95% de nuestro
                 personal tiene certificación expedida por el SENA en "Despachar
                 mercancías según métodos de preparación de pedidos y sistema de
                 gestión".
@@ -62,7 +62,8 @@ export default function NosotrosPage() {
                 Trabajamos constantemente para garantizar que todos nuestros
                 procesos sean realizados bajo el cumplimiento de la normatividad
                 nacional vigente aplicable en materia de seguridad y salud en el
-                trabajo como lo son Garantía de Calidad del Sistema General de
+                trabajo, en armonía con los estándares mínimos del Sistema
+                Obligatorio de Garantía de Calidad del Sistema General de
                 Riesgos Laborales.
               </p>
               <p>
