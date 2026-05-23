@@ -24,7 +24,7 @@ const services = [
   {
     id: "bodega",
     icon: Warehouse,
-    title: "Apoyo en Bodega",
+    title: "Operaciones en Bodega",
     description:
       "Personal para actividades de picking, packing, ubicación de mercancía en bodega, devoluciones, inventarios.",
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=500&fit=crop",
