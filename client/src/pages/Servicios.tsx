@@ -29,7 +29,7 @@ const services = [
     title: "Operaciones en Bodega",
     description:
       "Conscientes de la volatilidad del mercado, APP Logistics realiza capacitaciones permanentes al personal para mejorar sus competencias y de esta manera apoyar las diferentes actividades que se llevan a cabo al interior de un centro de distribución o bodega tales como alistamiento de pedidos, embalajes, recepción de devoluciones, ubicación de mercancía, etc. Por esto los picos de operación que tiene cada uno de nuestros clientes se alivian en gran parte gracias al apoyo que les podemos brindar.",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop",
+    image: "/servicios/bodega.jpg",
     color: "from-emerald-500/10 to-emerald-600/5",
     iconColor: "text-emerald-600",
   },
