@@ -21,7 +21,7 @@ export default function NosotrosPage() {
             </h1>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-5 text-muted-foreground leading-relaxed">
+          <div className="max-w-5xl mx-auto text-muted-foreground leading-relaxed columns-1 lg:columns-2 gap-10 [&>p]:mb-5 [&>p]:break-inside-avoid">
             <p>
               APP Logistics es una empresa 100% colombiana, que nace en 2012
               como una solución para todo tipo de empresas que ven oportunidades
@@ -60,24 +60,37 @@ export default function NosotrosPage() {
             </p>
           </div>
 
-          <div className="mt-20">
-            <h2 className="text-2xl font-bold text-primary text-center mb-12">
-              Nuestra trayectoria
-            </h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {timeline.map((item) => (
-                <div key={item.year} className="text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-accent text-white flex items-center justify-center text-lg font-extrabold shadow-md shadow-accent/25 mb-4">
-                    {item.year.slice(-2)}
+          <div className="mt-24">
+            <div className="text-center mb-16">
+              <span className="text-accent font-semibold text-sm uppercase tracking-wider">
+                Nuestra trayectoria
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-primary mt-2">
+                Más de una década creciendo
+              </h2>
+            </div>
+
+            <div className="relative">
+              <div className="hidden lg:block absolute top-9 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-accent/10 via-accent/40 to-accent/10" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-6 relative">
+                {timeline.map((item) => (
+                  <div
+                    key={item.year}
+                    className="flex flex-col items-center text-center group"
+                  >
+                    <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-gradient-to-br from-accent to-orange-600 text-white flex items-center justify-center text-xl font-extrabold shadow-lg shadow-accent/30 ring-4 ring-white group-hover:scale-110 transition-transform duration-300">
+                      {item.year.slice(-2)}
+                    </div>
+                    <span className="block text-lg font-bold text-primary mt-5">
+                      {item.year}
+                    </span>
+                    <p className="text-sm text-muted-foreground mt-1.5 max-w-[220px] leading-relaxed">
+                      {item.event}
+                    </p>
                   </div>
-                  <span className="block text-base font-bold text-accent">
-                    {item.year}
-                  </span>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {item.event}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
