@@ -104,18 +104,18 @@ export default function ServiciosPage() {
                 i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
               )}
             >
-              <div className="lg:w-5/12">
+              <div className="w-full lg:w-5/12">
                 <div className="relative rounded-2xl overflow-hidden shadow-lg group">
                   <img
                     src={service.image}
                     alt={service.title}
-                    className="w-full h-72 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
               </div>
 
-              <div className="lg:w-7/12">
+              <div className="w-full lg:w-7/12">
                 <div
                   className={cn(
                     "w-14 h-14 rounded-xl flex items-center justify-center mb-5",
