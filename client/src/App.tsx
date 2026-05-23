@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import WhatsAppButton from "./components/layout/WhatsAppButton";
@@ -48,6 +49,7 @@ function NotFoundPage() {
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Navbar />
       <main className="flex-1 pt-16 lg:pt-20">
         <Switch>
