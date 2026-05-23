@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 
 const API_URL = "https://app-server-production-65d5.up.railway.app";
 
@@ -11,19 +12,6 @@ const cargos = [
 ];
 
 const tiposDocumento = ["Cédula", "PEP"];
-
-const codigosPais = [
-  { code: "+57", pais: "Colombia" },
-  { code: "+58", pais: "Venezuela" },
-  { code: "+593", pais: "Ecuador" },
-  { code: "+51", pais: "Perú" },
-  { code: "+52", pais: "México" },
-  { code: "+1", pais: "EE.UU." },
-  { code: "+34", pais: "España" },
-  { code: "+56", pais: "Chile" },
-  { code: "+54", pais: "Argentina" },
-  { code: "+507", pais: "Panamá" },
-];
 
 const ciudades = [
   "Bogotá",
@@ -332,18 +320,12 @@ export default function EmpleoPage() {
                 Teléfono
               </label>
               <div className="flex gap-2">
-                <select
-                  name="codigoPais"
+                <CountryCodeSelect
                   value={formData.codigoPais}
-                  onChange={handleChange}
-                  className="w-28 shrink-0 border rounded-xl px-2 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
-                >
-                  {codigosPais.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.code} {c.pais}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(dial) =>
+                    setFormData((prev) => ({ ...prev, codigoPais: dial }))
+                  }
+                />
                 <input
                   type="tel"
                   name="telefono"
