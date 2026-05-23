@@ -54,7 +54,7 @@ const services = [
     title: "Asesorías y Capacitación",
     description:
       "Equipo experto para potenciar oportunidades de mejora, aumentar capacidades y disminuir tiempos de respuesta.",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=500&fit=crop",
+    image: "/servicios/asesorias.jpg",
     iconColor: "text-amber-600",
   },
 ];

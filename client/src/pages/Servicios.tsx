@@ -59,7 +59,7 @@ const services = [
     title: "Asesorías y Capacitación",
     description:
       "APP Logistics pone a la disposición un equipo experto en diferentes áreas de la cadena logística, cuyo objetivo primordial es potenciar las oportunidades de mejora que tiene cada operación, trabajando facultados enfocados a aumentar capacidades, mejorar costos y disminuir tiempos de respuesta a los clientes.",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop",
+    image: "/servicios/asesorias.jpg",
     color: "from-amber-500/10 to-amber-600/5",
     iconColor: "text-amber-600",
   },
