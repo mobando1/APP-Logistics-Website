@@ -35,7 +35,7 @@ const services = [
     icon: ClipboardList,
     title: "Inventarios",
     description:
-      "Personal con experiencia en toma de inventarios y uso de terminales de RF para optimizar tiempos y calidad de información.",
+      "Personal con experiencia en la toma de inventarios y en el uso y desarrollo de herramientas para optimizar tiempos y mejorar la calidad de la información.",
     image: "/servicios/inventarios.jpg",
     iconColor: "text-violet-600",
   },
