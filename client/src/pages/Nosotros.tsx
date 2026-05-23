@@ -70,27 +70,21 @@ export default function NosotrosPage() {
               </h2>
             </div>
 
-            <div className="relative">
-              <div className="hidden lg:block absolute top-9 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-accent/10 via-accent/40 to-accent/10" />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-6 relative">
-                {timeline.map((item) => (
-                  <div
-                    key={item.year}
-                    className="flex flex-col items-center text-center group"
-                  >
-                    <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-gradient-to-br from-accent to-orange-600 text-white flex items-center justify-center text-xl font-extrabold shadow-lg shadow-accent/30 ring-4 ring-white group-hover:scale-110 transition-transform duration-300">
-                      {item.year.slice(-2)}
-                    </div>
-                    <span className="block text-lg font-bold text-primary mt-5">
-                      {item.year}
-                    </span>
-                    <p className="text-sm text-muted-foreground mt-1.5 max-w-[220px] leading-relaxed">
-                      {item.event}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {timeline.map((item) => (
+                <div
+                  key={item.year}
+                  className="group bg-white border border-border rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 hover:border-accent/30 transition-all duration-300"
+                >
+                  <span className="block text-4xl font-extrabold text-accent leading-none">
+                    {item.year}
+                  </span>
+                  <div className="w-10 h-1 bg-accent/30 rounded-full my-4 group-hover:w-16 group-hover:bg-accent transition-all duration-300" />
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.event}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
