@@ -9,7 +9,7 @@ const services = [
     title: "Distribución de Mercancías",
     description:
       "Personal idóneo para procesos de distribución urbana, entrega de pedidos, operaciones Tienda A Tienda.",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&h=500&fit=crop",
+    image: "/servicios/distribucion.jpg",
     iconColor: "text-blue-600",
   },
   {

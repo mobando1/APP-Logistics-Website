@@ -9,7 +9,7 @@ const services = [
     title: "Distribución de Mercancías",
     description:
       "En APP Logistics, sabemos que somos el último eslabón en la cadena logística, por eso nuestro personal posee las competencias necesarias para la entrega final y así poder transmitir la calidad y confianza que nuestros clientes han depositado en nosotros. Realizamos entregas en Clientes estratégicos, grandes superficies, operaciones Tienda A Tienda (TAT) con la responsabilidad y agilidad que cada pedido requiere.",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&h=400&fit=crop",
+    image: "/servicios/distribucion.jpg",
     color: "from-blue-500/10 to-blue-600/5",
     iconColor: "text-blue-600",
   },
