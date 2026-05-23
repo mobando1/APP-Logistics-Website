@@ -38,7 +38,7 @@ const services = [
     icon: ClipboardList,
     title: "Inventarios",
     description:
-      "El inventario es uno de los activos más importantes que puede tener una empresa, de este depende la continuidad del servicio y la producción de un bien, es por esto que se debe tener un control exhaustivo sobre este y es allí donde APP Logistics entra a realizar un apoyo a sus clientes ya que tenemos personal con experiencia en la toma de inventarios y en el uso de herramientas tecnológicas tales como terminales de RF que permiten optimizar tiempos y mejorar considerablemente la calidad de la información capturada.",
+      "El inventario es uno de los activos más importantes que puede tener una empresa, de este depende la continuidad del servicio y la producción de un bien, es por esto que se debe tener un control exhaustivo sobre este y es allí donde APP Logistics entra a realizar un apoyo a sus clientes ya que tenemos personal con experiencia en la toma de inventarios y en el uso y desarrollo de herramientas que permiten optimizar tiempos y mejorar considerablemente la calidad de la información capturada.",
     image: "/servicios/inventarios.jpg",
     color: "from-violet-500/10 to-violet-600/5",
     iconColor: "text-violet-600",
