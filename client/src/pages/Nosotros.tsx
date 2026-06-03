@@ -19,46 +19,91 @@ export default function NosotrosPage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mt-2 mb-4">
               Nosotros
             </h1>
+            <p className="text-lg sm:text-xl font-semibold text-primary max-w-3xl mx-auto">
+              APP Logistics: precisión, confianza y excelencia operativa
+            </p>
           </div>
 
           <div className="max-w-5xl mx-auto text-muted-foreground leading-relaxed columns-1 lg:columns-2 gap-10 [&>p]:mb-5 [&>p]:break-inside-avoid">
             <p>
-              APP Logistics es una empresa 100% colombiana, que nace en 2012
-              como una solución para todo tipo de empresas que ven oportunidades
-              de mejora en diferentes procesos logísticos como el cargue y
-              descargue de mercancías, operaciones de bodega, maquila,
-              inventarios entre otros.
+              <strong className="font-semibold text-primary">APP Logistics</strong> es
+              una compañía 100% colombiana fundada en 2012, especializada en
+              soluciones logísticas integrales diseñadas para optimizar la
+              operación de empresas que buscan mayor eficiencia, control y
+              productividad en su cadena de suministro.
             </p>
             <p>
-              A lo largo de estos años nos hemos especializado en procesos de
-              distribución, cubicaje, reportes, diligenciamiento de formatos,
-              radicación de facturación y diferentes requerimientos de nuestros
-              clientes, que nos ha permitido permanecer en el mercado.
+              Durante más de una década hemos acompañado a organizaciones de
+              distintos sectores, fortaleciendo procesos estratégicos como{" "}
+              <strong className="font-semibold text-primary">
+                cargue y descargue de mercancías, operaciones de bodega, picking
+                &amp; packing, maquila, gestión de inventarios, distribución,
+                cubicaje, trazabilidad documental, radicación de facturación y
+                ejecución de procesos operativos especializados
+              </strong>
+              , adaptándonos a los requerimientos particulares de cada cliente.
             </p>
             <p>
-              Permanentemente capacitamos a nuestro personal en Buenas Prácticas
-              (manufactura, transporte, almacenamiento), manipulación de
-              alimentos y seguridad, lo que nos permite entregar un servicio
-              óptimo; actualmente el 95% de nuestro personal tiene certificación
-              expedida por el SENA en "Despachar mercancías según métodos de
-              preparación de pedidos y sistema de gestión".
+              Nuestra permanencia y crecimiento en el mercado son el resultado de
+              una operación construida sobre tres pilares fundamentales:{" "}
+              <strong className="font-semibold text-primary">
+                excelencia operativa, talento humano calificado y estricto
+                cumplimiento normativo.
+              </strong>
             </p>
             <p>
-              Trabajamos constantemente para garantizar que todos nuestros
-              procesos sean realizados bajo el cumplimiento de la normatividad
-              nacional vigente aplicable en materia de seguridad y salud en el
-              trabajo, en armonía con los estándares mínimos del Sistema
-              Obligatorio de Garantía de Calidad del Sistema General de Riesgos
-              Laborales.
+              Contamos con un equipo altamente capacitado y en formación
+              permanente en{" "}
+              <strong className="font-semibold text-primary">
+                Buenas Prácticas de Manufactura, almacenamiento, transporte,
+                manipulación de alimentos y seguridad operativa
+              </strong>
+              . Actualmente, el{" "}
+              <strong className="font-semibold text-primary">
+                65% de nuestro personal cuenta con certificación expedida por el
+                SENA en "Despachar mercancías según métodos de preparación de
+                pedidos y sistema de gestión"
+              </strong>
+              , garantizando ejecución técnica, eficiencia y confiabilidad en
+              cada operación.
             </p>
             <p>
-              En APP Logistics estamos comprometidos con la seguridad para
-              nuestros clientes, razón por la cual somos miembros activos del
-              Frente de Seguridad Empresarial de la Policía Nacional de Colombia
-              y basamos nuestros procesos en sus pilares y principios BASC
-              Capítulo Bogotá.
+              En APP Logistics desarrollamos todos nuestros procesos bajo el
+              cumplimiento riguroso de la normatividad colombiana vigente en{" "}
+              <strong className="font-semibold text-primary">
+                Seguridad y Salud en el Trabajo
+              </strong>
+              , alineados con los estándares mínimos del Sistema General de
+              Riesgos Laborales y bajo una cultura organizacional orientada a la
+              mejora continua y la prevención.
+            </p>
+            <p>
+              La seguridad y la confianza de nuestros clientes son prioridad. Por
+              ello, somos{" "}
+              <strong className="font-semibold text-primary">
+                miembros activos del Frente de Seguridad Empresarial de la Policía
+                Nacional de Colombia
+              </strong>{" "}
+              y estructuramos nuestra operación bajo los principios y lineamientos{" "}
+              <strong className="font-semibold text-primary">
+                BASC Capítulo Bogotá
+              </strong>
+              , fortaleciendo entornos logísticos seguros, transparentes y
+              confiables.
+            </p>
+            <p>
+              Hoy, con presencia en las principales ciudades de Colombia y
+              proyección internacional hacia Europa,{" "}
+              <strong className="font-semibold text-primary">
+                APP Logistics evoluciona para convertirse en el aliado estratégico
+                que impulsa operaciones más eficientes, seguras y competitivas.
+              </strong>
             </p>
           </div>
+
+          <p className="max-w-5xl mx-auto mt-10 text-center text-xl sm:text-2xl font-extrabold text-primary">
+            Transformamos procesos logísticos en ventajas competitivas.
+          </p>
 
           <div className="mt-24">
             <div className="text-center mb-16">
