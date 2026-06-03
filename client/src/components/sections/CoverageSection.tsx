@@ -29,7 +29,7 @@ const cities = [
   {
     name: "Bucaramanga",
     detail: "",
-    image: "https://images.unsplash.com/photo-1599661046827-dacde6976549?w=400&h=300&fit=crop",
+    image: "/ciudades/bucaramanga.jpg",
   },
 ];
 
@@ -52,7 +52,7 @@ export default function CoverageSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cities.map((city) => (
             <div
               key={city.name}
