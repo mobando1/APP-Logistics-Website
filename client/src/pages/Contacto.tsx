@@ -257,7 +257,7 @@ export default function ContactoPage() {
                   <div>
                     <p className="text-xs text-white/50">Cobertura</p>
                     <p className="font-medium">
-                      Bogotá, Medellín, Cali, Barranquilla
+                      Bogotá, Medellín, Cali, Barranquilla, Cartagena, Bucaramanga
                     </p>
                   </div>
                 </div>

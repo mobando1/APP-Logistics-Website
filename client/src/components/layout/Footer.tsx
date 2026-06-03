@@ -84,7 +84,7 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-white/60">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 shrink-0 text-accent mt-0.5" />
-                <span>Bogotá | Medellín | Cali | Barranquilla</span>
+                <span>Bogotá | Medellín | Cali | Barranquilla | Cartagena | Bucaramanga</span>
               </li>
               <li>
                 <a

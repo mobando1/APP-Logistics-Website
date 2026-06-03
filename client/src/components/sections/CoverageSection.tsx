@@ -21,6 +21,16 @@ const cities = [
     detail: "",
     image: "https://images.unsplash.com/photo-1548372007-09f87bdf7a35?w=400&h=300&fit=crop",
   },
+  {
+    name: "Cartagena",
+    detail: "",
+    image: "https://images.unsplash.com/photo-1583531352515-8884af319dc1?w=400&h=300&fit=crop",
+  },
+  {
+    name: "Bucaramanga",
+    detail: "",
+    image: "https://images.unsplash.com/photo-1599661046827-dacde6976549?w=400&h=300&fit=crop",
+  },
 ];
 
 export default function CoverageSection() {
@@ -37,7 +47,8 @@ export default function CoverageSection() {
           <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
             Nuestra oficina central se encuentra en Bogotá. En enero de 2020
             abrimos en Medellín y en marzo de 2022 iniciamos operaciones en
-            Cali y Barranquilla.
+            Cali y Barranquilla. Hoy también tenemos cobertura en Cartagena
+            y Bucaramanga.
           </p>
         </div>
 

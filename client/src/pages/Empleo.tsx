@@ -18,6 +18,8 @@ const ciudades = [
   "Medellín",
   "Cali",
   "Barranquilla",
+  "Cartagena",
+  "Bucaramanga",
   "Otra",
 ];
 
