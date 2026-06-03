@@ -4,7 +4,11 @@ const timeline = [
   { year: "2012", event: "Fundación en Bogotá como empresa 100% colombiana" },
   { year: "2020", event: "Apertura de agencia en Medellín" },
   { year: "2022", event: "Inicio de operaciones en Cali y Barranquilla" },
-  { year: "2026", event: "+100 clientes satisfechos en todo Colombia" },
+  {
+    year: "2026",
+    event:
+      "En expansión: nueva cobertura en Cartagena y Bucaramanga y proyección internacional hacia España",
+  },
 ];
 
 export default function NosotrosPage() {
