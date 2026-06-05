@@ -51,10 +51,10 @@ const es: LocaleContent = {
   },
 
   about: {
-    heading: "Soluciones logísticas con sede en Madrid", // PENDIENTE
+    heading: "Empresa 100% colombiana desde 2012",
     paragraphs: [
-      "Llevamos más de una década ofreciendo soluciones logísticas a empresas que buscan eficiencia en sus procesos: cargue y descargue, operaciones de almacén, maquila e inventarios, entre otros.", // PENDIENTE
-      "Ahora ampliamos nuestra operación a España y Europa desde Madrid, con personal cualificado y un compromiso real con la mejora continua de cada cliente.", // PENDIENTE
+      "Nacimos en 2012 como una solución para empresas que buscan eficiencia en sus procesos logísticos: cargue y descargue, operaciones de bodega, maquila, inventarios entre otros.",
+      "Más de una década especializándonos en distribución y operaciones, con personal capacitado y un compromiso real con la mejora continua de cada cliente.",
     ],
     valores: [
       {
