@@ -1,42 +1,14 @@
 import { useState } from "react";
 import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
+import { useLocale } from "@client/lib/LocaleContext";
 
 const API_URL = "https://app-server-production-65d5.up.railway.app";
-
-const cargos = [
-  "Auxiliar de operaciones",
-  "Montacarguista",
-  "Conductor",
-  "Auxiliar administrativo",
-];
-
-const tiposDocumento = ["Cédula", "PEP"];
-
-const ciudades = [
-  "Bogotá",
-  "Medellín",
-  "Cali",
-  "Barranquilla",
-  "Cartagena",
-  "Bucaramanga",
-  "Otra",
-];
 
 const identidadGenero = [
   "Masculino",
   "Femenino",
   "No binario",
-  "Prefiero no decir",
-];
-
-const grupoEtnico = [
-  "Ninguno",
-  "Afrocolombiano",
-  "Indígena",
-  "Raizal",
-  "Palenquero",
-  "Rom/Gitano",
   "Prefiero no decir",
 ];
 
@@ -80,13 +52,17 @@ function FileUpload({
 }
 
 export default function EmpleoPage() {
+  const { content } = useLocale();
+  const { cargos, tiposDocumento, ciudades, grupoEtnico, documentoApiMap } =
+    content.forms;
+
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
-    tipoDocumento: "Cédula",
+    tipoDocumento: tiposDocumento[0],
     documento: "",
     email: "",
-    codigoPais: "+57",
+    codigoPais: content.forms.defaultDialCode,
     telefono: "",
     cargo: "",
     ciudad: "",
@@ -142,7 +118,7 @@ export default function EmpleoPage() {
         segundoNombre: nombreParts.slice(1).join(" ") || null,
         primerApellido: apellidoParts[0] || "",
         segundoApellido: apellidoParts.slice(1).join(" ") || null,
-        tipoDocumento: formData.tipoDocumento === "PEP" ? "PEP" : "CC",
+        tipoDocumento: documentoApiMap[formData.tipoDocumento] || formData.tipoDocumento,
         numeroDocumento: formData.documento,
         celular: `${formData.codigoPais} ${formData.telefono}`.trim(),
         email: formData.email,
@@ -405,7 +381,11 @@ export default function EmpleoPage() {
               fileName={fileNames.medidasCorrectivas}
             />
             <FileUpload
-              label="Antecedentes Policía Nacional"
+              label={
+                content.locale === "es"
+                  ? "Certificado de antecedentes penales"
+                  : "Antecedentes Policía Nacional"
+              }
               name="antecedentes"
               onChange={handleFileChange}
               fileName={fileNames.antecedentes}
@@ -431,24 +411,26 @@ export default function EmpleoPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Grupo Étnico
-              </label>
-              <select
-                name="grupoEtnico"
-                value={formData.grupoEtnico}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
-              >
-                <option value="">Grupo Étnico</option>
-                {grupoEtnico.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {grupoEtnico && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Grupo Étnico
+                </label>
+                <select
+                  name="grupoEtnico"
+                  value={formData.grupoEtnico}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+                >
+                  <option value="">Grupo Étnico</option>
+                  {grupoEtnico.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">

@@ -1,25 +1,15 @@
 import { GraduationCap, ShieldCheck, Award, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { useLocale } from "@client/lib/LocaleContext";
 
-const valores = [
-  {
-    icon: GraduationCap,
-    title: "Personal altamente capacitado y certificado",
-    text: "Equipo formado en buenas prácticas y seguridad industrial, con certificación SENA en despacho de mercancías.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Seguridad, cumplimiento y eficiencia en cada operación",
-    text: "Procesos basados en estándares BASC, SG-SST y la normatividad vigente, para entregar resultados confiables.",
-  },
-  {
-    icon: Award,
-    title: "Experiencia y especialización en operaciones logísticas",
-    text: "Más de una década enfocados en distribución, bodega, inventarios y cargue/descargue para empresas de todo Colombia.",
-  },
-];
+const valorIcons = [GraduationCap, ShieldCheck, Award];
 
 export default function AboutSection() {
+  const { content } = useLocale();
+  const valores = content.about.valores.map((v, i) => ({
+    ...v,
+    icon: valorIcons[i] ?? Award,
+  }));
   return (
     <section className="py-16 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,20 +19,13 @@ export default function AboutSection() {
               Sobre nosotros
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-primary mt-2 mb-6">
-              Empresa 100% colombiana desde 2012
+              {content.about.heading}
             </h2>
 
             <div className="space-y-4 text-muted-foreground leading-relaxed mb-8">
-              <p>
-                Nacimos en 2012 como una solución para empresas que buscan
-                eficiencia en sus procesos logísticos: cargue y descargue,
-                operaciones de bodega, maquila, inventarios entre otros.
-              </p>
-              <p>
-                Más de una década especializándonos en distribución y
-                operaciones, con personal capacitado y un compromiso real con la
-                mejora continua de cada cliente.
-              </p>
+              {content.about.paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </div>
 
             <Link

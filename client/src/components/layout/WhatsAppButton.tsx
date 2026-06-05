@@ -1,12 +1,11 @@
-const WHATSAPP_NUMBER = "573153402545";
-const MESSAGE = encodeURIComponent(
-  "Hola, quiero información sobre sus servicios logísticos."
-);
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function WhatsAppButton() {
+  const { content } = useLocale();
+  const message = encodeURIComponent(content.contact.whatsappMessage);
   return (
     <a
-      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${MESSAGE}`}
+      href={`https://wa.me/${content.contact.whatsappNumber}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"

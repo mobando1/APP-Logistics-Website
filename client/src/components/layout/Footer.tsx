@@ -1,7 +1,9 @@
 import { Link } from "wouter";
 import { MapPin, Phone, Mail, Shield, ArrowUpRight } from "lucide-react";
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function Footer() {
+  const { content } = useLocale();
   return (
     <footer className="bg-[#0f2440] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -15,15 +17,11 @@ export default function Footer() {
               />
             </div>
             <p className="text-sm text-white/60 mb-4 leading-relaxed">
-              Empresa 100% colombiana fundada en 2012. Expertos en manipulación
-              de mercancía y operaciones logísticas.
+              {content.footerDescription}
             </p>
             <div className="flex items-start gap-2 text-xs text-white/40">
               <Shield className="h-4 w-4 shrink-0 mt-0.5" />
-              <span>
-                Miembros del Frente de Seguridad Empresarial de la Policía
-                Nacional | BASC Capítulo Bogotá
-              </span>
+              <span>{content.footerCertifications}</span>
             </div>
           </div>
 
@@ -84,24 +82,24 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-white/60">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 shrink-0 text-accent mt-0.5" />
-                <span>Bogotá | Medellín | Cali | Barranquilla | Cartagena | Bucaramanga</span>
+                <span>{content.footerCities}</span>
               </li>
               <li>
                 <a
-                  href="tel:+573153402545"
+                  href={`tel:${content.contact.phoneTel}`}
                   className="flex items-center gap-3 hover:text-accent transition-colors"
                 >
                   <Phone className="h-5 w-5 shrink-0 text-accent" />
-                  (57) 315 340 25 45
+                  {content.contact.phoneDisplay}
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:info@applogistics.com.co"
+                  href={`mailto:${content.contact.email}`}
                   className="flex items-center gap-3 hover:text-accent transition-colors"
                 >
                   <Mail className="h-5 w-5 shrink-0 text-accent" />
-                  info@applogistics.com.co
+                  {content.contact.email}
                 </a>
               </li>
             </ul>
@@ -112,8 +110,8 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
           <span className="text-xs text-white/40">
-            &copy; {new Date().getFullYear()} APP Logistics SAS. Todos los
-            derechos reservados.
+            &copy; {new Date().getFullYear()} {content.companyLegalName}. Todos
+            los derechos reservados.
           </span>
         </div>
       </div>

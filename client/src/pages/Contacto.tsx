@@ -1,21 +1,13 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
+import { useLocale } from "@client/lib/LocaleContext";
 
 const API_URL = "https://app-server-production-65d5.up.railway.app";
 
-const sectores = [
-  "Alimentos y Bebidas",
-  "Químicos",
-  "Farmacéutico",
-  "Retail",
-  "Manufactura",
-  "Tecnología",
-  "Construcción",
-  "Otro",
-];
-
 export default function ContactoPage() {
+  const { content } = useLocale();
+  const sectores = content.forms.sectores;
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -82,10 +74,10 @@ export default function ContactoPage() {
             Reciba un presupuesto que se ajuste a las necesidades de su
             operación o escríbanos a{" "}
             <a
-              href="mailto:carlos.garcia@applogistics.com.co"
+              href={`mailto:${content.contact.salesEmail}`}
               className="text-accent font-medium hover:underline"
             >
-              carlos.garcia@applogistics.com.co
+              {content.contact.salesEmail}
             </a>
           </p>
         </div>
@@ -218,7 +210,7 @@ export default function ContactoPage() {
               </h3>
               <div className="space-y-5">
                 <a
-                  href="tel:+573153402545"
+                  href={`tel:${content.contact.phoneTel}`}
                   className="flex items-center gap-4 group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
@@ -226,11 +218,11 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="text-xs text-white/50">Teléfono</p>
-                    <p className="font-medium">(57) 315 340 25 45</p>
+                    <p className="font-medium">{content.contact.phoneDisplay}</p>
                   </div>
                 </a>
                 <a
-                  href="mailto:info@applogistics.com.co"
+                  href={`mailto:${content.contact.email}`}
                   className="flex items-center gap-4 group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
@@ -238,7 +230,7 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="text-xs text-white/50">Email</p>
-                    <p className="font-medium">info@applogistics.com.co</p>
+                    <p className="font-medium">{content.contact.email}</p>
                   </div>
                 </a>
                 <div className="flex items-center gap-4">
@@ -247,7 +239,7 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="text-xs text-white/50">Oficina Central</p>
-                    <p className="font-medium">Bogotá, Colombia</p>
+                    <p className="font-medium">{content.contact.officeCity}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -257,7 +249,7 @@ export default function ContactoPage() {
                   <div>
                     <p className="text-xs text-white/50">Cobertura</p>
                     <p className="font-medium">
-                      Bogotá, Medellín, Cali, Barranquilla, Cartagena, Bucaramanga
+                      {content.contact.coverageInline}
                     </p>
                   </div>
                 </div>

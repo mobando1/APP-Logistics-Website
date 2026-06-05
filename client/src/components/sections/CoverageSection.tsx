@@ -1,39 +1,9 @@
 import { MapPin } from "lucide-react";
-
-const cities = [
-  {
-    name: "Bogotá",
-    detail: "Oficina central",
-    image: "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=400&h=300&fit=crop",
-  },
-  {
-    name: "Medellín",
-    detail: "",
-    image: "https://images.unsplash.com/photo-1633627425472-d07ac65e2a36?w=400&h=300&fit=crop",
-  },
-  {
-    name: "Cali",
-    detail: "",
-    image: "https://images.unsplash.com/photo-1728588519059-a62e06050425?w=400&h=300&fit=crop",
-  },
-  {
-    name: "Barranquilla",
-    detail: "",
-    image: "https://images.unsplash.com/photo-1548372007-09f87bdf7a35?w=400&h=300&fit=crop",
-  },
-  {
-    name: "Cartagena",
-    detail: "",
-    image: "https://images.unsplash.com/photo-1583531352515-8884af319dc1?w=400&h=300&fit=crop",
-  },
-  {
-    name: "Bucaramanga",
-    detail: "",
-    image: "/ciudades/bucaramanga.jpg",
-  },
-];
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function CoverageSection() {
+  const { content } = useLocale();
+  const cities = content.coverage.cities;
   return (
     <section className="py-16 sm:py-20 bg-muted">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,10 +15,7 @@ export default function CoverageSection() {
             Donde nos encontramos
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
-            Nuestra oficina central se encuentra en Bogotá. En enero de 2020
-            abrimos en Medellín y en marzo de 2022 iniciamos operaciones en
-            Cali y Barranquilla. Hoy también tenemos cobertura en Cartagena
-            y Bucaramanga.
+            {content.coverage.intro}
           </p>
         </div>
 

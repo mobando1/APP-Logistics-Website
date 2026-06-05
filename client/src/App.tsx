@@ -1,4 +1,6 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Router } from "wouter";
+import { LocaleProvider } from "./lib/LocaleContext";
+import { localeFromPath, LOCALE_BASE } from "./lib/locale-routing";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -47,37 +49,45 @@ function NotFoundPage() {
 }
 
 export default function App() {
+  // El locale se deriva del prefijo de la URL ("/es" = España, resto = Colombia).
+  // Se lee una sola vez al montar: cambiar de país es una navegación completa.
+  const locale = localeFromPath(window.location.pathname);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <ScrollToTop />
-      <Navbar />
-      <main className="flex-1 pt-16 lg:pt-20">
-        <Switch>
-          <Route path="/">
-            <HomePage />
-          </Route>
-          <Route path="/servicios">
-            <ServiciosPage />
-          </Route>
-          <Route path="/nosotros">
-            <NosotrosPage />
-          </Route>
-          <Route path="/contacto">
-            <ContactoPage />
-          </Route>
-          <Route path="/cotizacion">
-            <ContactoPage />
-          </Route>
-          <Route path="/empleo">
-            <EmpleoPage />
-          </Route>
-          <Route>
-            <NotFoundPage />
-          </Route>
-        </Switch>
-      </main>
-      <Footer />
-      <WhatsAppButton />
-    </div>
+    <LocaleProvider locale={locale}>
+      <Router base={LOCALE_BASE[locale]}>
+        <div className="min-h-screen flex flex-col">
+          <ScrollToTop />
+          <Navbar />
+          <main className="flex-1 pt-16 lg:pt-20">
+            <Switch>
+              <Route path="/">
+                <HomePage />
+              </Route>
+              <Route path="/servicios">
+                <ServiciosPage />
+              </Route>
+              <Route path="/nosotros">
+                <NosotrosPage />
+              </Route>
+              <Route path="/contacto">
+                <ContactoPage />
+              </Route>
+              <Route path="/cotizacion">
+                <ContactoPage />
+              </Route>
+              <Route path="/empleo">
+                <EmpleoPage />
+              </Route>
+              <Route>
+                <NotFoundPage />
+              </Route>
+            </Switch>
+          </main>
+          <Footer />
+          <WhatsAppButton />
+        </div>
+      </Router>
+    </LocaleProvider>
   );
 }

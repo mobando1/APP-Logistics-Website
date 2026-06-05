@@ -1,42 +1,44 @@
 import { Calendar, Award, Users, MapPin } from "lucide-react";
 import CountUp from "@client/components/ui/CountUp";
-
-const stats = [
-  {
-    icon: Calendar,
-    value: 14,
-    prefix: "+",
-    suffix: "",
-    label: "Años de experiencia",
-    detail: "Desde 2012",
-  },
-  {
-    icon: Award,
-    value: 95,
-    prefix: "",
-    suffix: "%",
-    label: "Personal certificado",
-    detail: "Certificación SENA",
-  },
-  {
-    icon: Users,
-    value: 100,
-    prefix: "",
-    suffix: "+",
-    label: "Clientes satisfechos",
-    detail: "En todo Colombia",
-  },
-  {
-    icon: MapPin,
-    value: 4,
-    prefix: "",
-    suffix: "",
-    label: "Ciudades de cobertura",
-    detail: "Y creciendo",
-  },
-];
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function StatsSection() {
+  const { content } = useLocale();
+  const s = content.stats;
+  const stats = [
+    {
+      icon: Calendar,
+      value: 14,
+      prefix: "+",
+      suffix: "",
+      label: "Años de experiencia",
+      detail: s.experienceDetail,
+    },
+    {
+      icon: Award,
+      value: s.certifiedValue,
+      prefix: "",
+      suffix: "%",
+      label: "Personal certificado",
+      detail: s.certifiedDetail,
+    },
+    {
+      icon: Users,
+      value: 100,
+      prefix: "",
+      suffix: "+",
+      label: "Clientes satisfechos",
+      detail: s.clientsDetail,
+    },
+    {
+      icon: MapPin,
+      value: s.citiesValue,
+      prefix: "",
+      suffix: "",
+      label: "Ciudades de cobertura",
+      detail: s.citiesDetail,
+    },
+  ];
   return (
     <section className="py-16 bg-primary relative overflow-hidden">
       <div className="absolute inset-0 opacity-5">

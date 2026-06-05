@@ -2,15 +2,58 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
+import cookieParser from "cookie-parser";
+import geoip from "geoip-lite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+type Locale = "co" | "es";
+
+// Solo actuamos sobre navegaciones HTML (no API, no assets, no XHR).
+const STATIC_RE = /\.[a-z0-9]+$/i;
+function isDocumentRequest(req: express.Request): boolean {
+  if (req.method !== "GET") return false;
+  if (req.path.startsWith("/api/")) return false;
+  if (STATIC_RE.test(req.path)) return false;
+  if (!String(req.headers.accept || "").includes("text/html")) return false;
+  return true;
+}
+
+// Locale deseado: cookie (elección manual) > geoip por IP > default Colombia.
+function desiredLocale(req: express.Request): Locale {
+  const cookie = req.cookies?.locale;
+  if (cookie === "co" || cookie === "es") return cookie;
+  try {
+    const ip = (req.ip || "").replace(/^::ffff:/, "");
+    const geo = geoip.lookup(ip);
+    return geo?.country === "ES" ? "es" : "co";
+  } catch {
+    return "co";
+  }
+}
+
 async function start() {
   const app = express();
+  // Necesario para leer la IP real del cliente tras un proxy/CDN (X-Forwarded-For).
+  app.set("trust proxy", true);
   app.use(express.json());
+  app.use(cookieParser());
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Detección de país por IP. Solo redirige hacia "/es"; nunca sale de "/es"
+  // (respeta URLs España explícitas) -> sin bucles de redirección.
+  app.use((req, res, next) => {
+    if (!isDocumentRequest(req)) return next();
+    const isEs = req.path === "/es" || req.path.startsWith("/es/");
+    if (desiredLocale(req) === "es" && !isEs) {
+      res.set("Cache-Control", "no-store");
+      res.set("Vary", "Cookie");
+      return res.redirect(302, "/es" + req.originalUrl);
+    }
+    next();
   });
 
   const isDev = process.env.NODE_ENV !== "production";

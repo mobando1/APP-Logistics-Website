@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@client/lib/utils";
+import { useLocale } from "@client/lib/LocaleContext";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -11,6 +13,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { content } = useLocale();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
@@ -61,12 +64,13 @@ export default function Navbar() {
 
             <div className="ml-4 flex items-center gap-3">
               <a
-                href="tel:+573153402545"
+                href={`tel:${content.contact.phoneTel}`}
                 className="hidden xl:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                315 340 25 45
+                {content.contact.navPhoneShort}
               </a>
+              <LocaleSwitcher />
               <Link
                 href="/contacto"
                 className="bg-accent hover:bg-accent/90 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm shadow-accent/25"
@@ -76,13 +80,16 @@ export default function Navbar() {
             </div>
           </div>
 
-          <button
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <LocaleSwitcher />
+            <button
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              onClick={() => setOpen(!open)}
+              aria-label="Menu"
+            >
+              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
       </div>
 

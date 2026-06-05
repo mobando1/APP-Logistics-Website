@@ -1,13 +1,10 @@
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle } from "lucide-react";
-
-const highlights = [
-  "Personal certificado SENA",
-  "Procesos BASC",
-  "Cobertura en 4 ciudades",
-];
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function HeroSection() {
+  const { content } = useLocale();
+  const highlights = content.hero.highlights;
   return (
     <section className="relative min-h-[92vh] flex items-center overflow-hidden">
       <div
@@ -24,7 +21,7 @@ export default function HeroSection() {
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-sm font-medium px-4 py-2 rounded-full mb-8 animate-fade-in-up">
             <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            +14 años fortaleciendo operaciones logísticas en Colombia
+            {content.hero.badge}
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6 animate-fade-in-up animation-delay-100 text-balance">
