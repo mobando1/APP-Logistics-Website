@@ -63,13 +63,15 @@ export default function Navbar() {
             ))}
 
             <div className="ml-4 flex items-center gap-3">
-              <a
-                href={`tel:${content.contact.phoneTel}`}
-                className="hidden xl:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Phone className="h-4 w-4" />
-                {content.contact.navPhoneShort}
-              </a>
+              {!content.contact.hidePhone && (
+                <a
+                  href={`tel:${content.contact.phoneTel}`}
+                  className="hidden xl:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Phone className="h-4 w-4" />
+                  {content.contact.navPhoneShort}
+                </a>
+              )}
               <LocaleSwitcher />
               <Link
                 href="/contacto"

@@ -4,7 +4,6 @@ const clients = [
   { name: "Conquímica", logo: "/clientes/Conquimica.png" },
   { name: "Pochteca Colombia", logo: "/clientes/photeca.jpg" },
   { name: "Premex", logo: "/clientes/premex.jpeg" },
-  { name: "Gecolsa", logo: "/clientes/gecolsa.png" },
 ];
 
 export default function ClientsSection() {

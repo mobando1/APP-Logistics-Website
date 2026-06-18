@@ -2,6 +2,7 @@ import { useLocale } from "@client/lib/LocaleContext";
 
 export default function WhatsAppButton() {
   const { content } = useLocale();
+  if (content.contact.hideWhatsapp) return null;
   const message = encodeURIComponent(content.contact.whatsappMessage);
   return (
     <a

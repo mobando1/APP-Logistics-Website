@@ -15,12 +15,16 @@ const es: LocaleContent = {
     phoneDisplay: "(+34) 600 000 000", // PENDIENTE
     phoneTel: "+34600000000", // PENDIENTE
     navPhoneShort: "600 000 000", // PENDIENTE
-    email: "info@applogistics.es", // PENDIENTE
-    salesEmail: "comercial@applogistics.es", // PENDIENTE
+    email: "info@applogistics.com.es",
+    salesEmail: "info@applogistics.com.es", // El cliente solo facilitó un correo para España
     whatsappNumber: "34600000000", // PENDIENTE
     whatsappMessage: "Hola, quiero información sobre sus servicios logísticos.",
-    officeCity: "Madrid, España", // PENDIENTE: dirección concreta
+    officeCity: "Madrid, España", // Oficina central
     coverageInline: "Madrid", // PENDIENTE: ciudades reales de cobertura
+    // Tel. y WhatsApp ocultos hasta que el cliente facilite la SIM/número exclusivo de España.
+    // Cuando llegue el número real: rellenar phone*/whatsappNumber y poner estos flags en false (o eliminarlos).
+    hidePhone: true,
+    hideWhatsapp: true,
   },
 
   coverage: {
@@ -72,14 +76,117 @@ const es: LocaleContent = {
     ],
   },
 
-  stats: {
-    experienceDetail: "Desde 2012",
-    certifiedValue: 100, // PENDIENTE
-    certifiedDetail: "Personal cualificado", // PENDIENTE
-    clientsDetail: "En España y Europa", // PENDIENTE
-    citiesValue: 1, // PENDIENTE: nº de ciudades reales
-    citiesDetail: "Y creciendo",
+  services: [
+    {
+      id: "distribucion",
+      title: "Distribución de Mercancías",
+      short:
+        "Personal cualificado para distribución urbana, reparto de pedidos y entrega a puntos de venta.",
+      long: "En APP Logistics entendemos que la distribución es uno de los momentos más importantes de la experiencia del cliente. Por ello, contamos con personal capacitado para realizar entregas en grandes superficies, establecimientos comerciales y puntos de venta, garantizando puntualidad, eficiencia y un servicio alineado con los estándares de calidad de nuestros clientes.",
+    },
+    {
+      id: "cargue-descargue",
+      title: "Carga y Descarga de Mercancías",
+      short:
+        "Apoyamos sus operaciones logísticas con personal especializado en la manipulación de mercancías.",
+      long: "Ofrecemos soluciones especializadas de carga y descarga allí donde nuestros clientes lo necesiten, tanto para mercancía paletizada como para carga unitaria o de gran volumen. Nuestro equipo trabaja bajo estrictos estándares de seguridad, eficiencia y productividad, contribuyendo a optimizar los tiempos de operación y reducir costes logísticos. La mejora continua forma parte de nuestra cultura de trabajo, permitiéndonos aportar valor en cada servicio.",
+    },
+    {
+      id: "bodega",
+      title: "Operaciones de Almacén",
+      short:
+        "Personal cualificado para operaciones de almacenamiento, preparación de pedidos y gestión de mercancías.",
+      long: "En APP Logistics disponemos de personal formado para apoyar las diferentes actividades dentro de almacenes y centros logísticos. Prestamos servicios de preparación de pedidos, picking, packing, gestión de devoluciones, inventarios y ubicación de mercancías. Nuestra flexibilidad operativa nos permite adaptarnos a incrementos de actividad y campañas estacionales, garantizando la continuidad y eficiencia de las operaciones.",
+    },
+    {
+      id: "inventarios",
+      title: "Inventarios",
+      short:
+        "Garantizamos inventarios precisos y fiables para una gestión eficiente de sus existencias.",
+      long: "Entendemos que el control de inventario es fundamental para garantizar la continuidad operativa y mantener un alto nivel de servicio. Por ello, contamos con personal especializado y herramientas que permiten optimizar los tiempos de ejecución, mejorar la precisión de los recuentos y proporcionar información fiable para la toma de decisiones.",
+    },
+    {
+      id: "acondicionamiento",
+      title: "Acondicionamiento Secundario",
+      short:
+        "Soluciones de acondicionamiento y adecuación de mercancías adaptadas a sus necesidades operativas.",
+      long: "Como parte de nuestros servicios de valor añadido, apoyamos a nuestros clientes en procesos de acondicionamiento secundario tales como reempaquetado, etiquetado, serialización, clasificación y reacondicionamiento de productos. Garantizamos calidad, trazabilidad y cumplimiento de los requisitos específicos de cada operación.",
+    },
+    {
+      id: "asesorias",
+      title: "Consultoría y Formación Logística",
+      short:
+        "Especialistas en optimización logística, mejora de procesos y desarrollo de capacidades operativas.",
+      long: "Ponemos a disposición de nuestros clientes un equipo de profesionales con amplia experiencia en la cadena de suministro. A través de servicios de consultoría y formación identificamos oportunidades de mejora y desarrollamos soluciones orientadas a aumentar la productividad, optimizar recursos, reducir costes operativos y mejorar la capacidad de respuesta de las organizaciones.",
+    },
+  ],
+  servicesIntro: {
+    title: "Especialistas en carga y descarga de mercancías",
+    subtitle:
+      "Somos especialistas en operaciones de carga y descarga, una actividad esencial para el correcto funcionamiento de la cadena de suministro. En APP Logistics ponemos a disposición de nuestros clientes personal cualificado, procedimientos seguros y una amplia experiencia operativa para garantizar eficiencia, productividad y un adecuado manejo de las mercancías en cada operación. Trabajamos para que nuestros clientes puedan centrarse en su actividad principal mientras nosotros nos encargamos de la ejecución operativa.",
   },
+
+  cta: {
+    title: "¿Necesita personal especializado para su operación logística?",
+    subtitle:
+      "Cuéntenos sus necesidades y elaboraremos una propuesta adaptada a su empresa. Estamos preparados para apoyar operaciones de carga y descarga, distribución, almacén, inventarios y servicios logísticos complementarios.",
+  },
+  empleoIntro: {
+    title: "Desarrolla tu carrera profesional con APP Logistics",
+    subtitle:
+      "Buscamos personas comprometidas, responsables y con vocación de servicio para formar parte de nuestro equipo. Envíanos tu currículum y descubre las oportunidades de crecimiento profesional que tenemos para ti.",
+  },
+
+  stats: [
+    {
+      key: "experiencia",
+      value: 14,
+      prefix: "+",
+      suffix: "",
+      label: "Años de experiencia",
+      detail: "Desde 2012",
+    },
+    {
+      key: "certificado",
+      value: 100, // PENDIENTE
+      prefix: "",
+      suffix: "%",
+      label: "Personal cualificado",
+      detail: "Formación continua", // PENDIENTE
+    },
+    {
+      key: "clientes",
+      value: 100,
+      prefix: "",
+      suffix: "%",
+      label: "Clientes satisfechos",
+      detail: "En España y Europa", // PENDIENTE
+    },
+    {
+      key: "cobertura",
+      value: 1, // PENDIENTE: nº de ciudades reales
+      prefix: "",
+      suffix: "",
+      label: "Ciudades de cobertura",
+      detail: "Y creciendo",
+    },
+    {
+      key: "cajas",
+      value: null, // PENDIENTE
+      prefix: "",
+      suffix: "+",
+      label: "Cajas movidas",
+      detail: "Último trimestre",
+    },
+    {
+      key: "vehiculos",
+      value: null, // PENDIENTE
+      prefix: "",
+      suffix: "+",
+      label: "Vehículos cargados/descargados",
+      detail: "Último trimestre",
+    },
+  ],
 
   nosotros: {
     subtitle: "APP Logistics: precisión, confianza y excelencia operativa",
@@ -171,8 +278,12 @@ const es: LocaleContent = {
 
   forms: {
     defaultDialCode: "+34",
-    tiposDocumento: ["DNI", "NIE"],
-    documentoApiMap: { DNI: "DNI", NIE: "NIE" }, // PENDIENTE: confirmar valores que acepta el backend
+    tiposDocumento: ["DNI", "NIE Comunidad Europea", "TIE"],
+    documentoApiMap: {
+      DNI: "DNI",
+      "NIE Comunidad Europea": "NIE",
+      TIE: "TIE",
+    }, // PENDIENTE: confirmar valores que acepta el backend
     ciudades: ["Madrid", "Barcelona", "Valencia", "Otra"], // PENDIENTE
     cargos: [
       "Auxiliar de operaciones",
@@ -191,6 +302,9 @@ const es: LocaleContent = {
       "Otro",
     ],
     // grupoEtnico se omite en España (no aplica) -> el campo no se renderiza.
+    nacionalidades: ["Español", "Extranjero"],
+    declaracion:
+      "Declaro que la información suministrada es veraz y que dispongo de los documentos que acreditan mi experiencia laboral, formación académica, cursos, capacitaciones y demás datos incluidos en mi candidatura, comprometiéndome a presentarlos cuando sean requeridos por APP Logistics.",
   },
 };
 

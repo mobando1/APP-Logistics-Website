@@ -1,7 +1,9 @@
 import { Link } from "wouter";
 import { ArrowRight, FileText } from "lucide-react";
+import { useLocale } from "@client/lib/LocaleContext";
 
 export default function CTASection() {
+  const { content } = useLocale();
   return (
     <section className="py-20 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,11 +13,10 @@ export default function CTASection() {
 
           <div className="relative">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 text-balance">
-              ¿Necesitas personal operativo para tu logística?
+              {content.cta.title}
             </h2>
             <p className="text-white/80 mb-8 max-w-2xl mx-auto text-lg">
-              Cuéntanos sobre tu operación y te preparamos una propuesta a la
-              medida. Cargue, descargue, distribución, bodega o inventarios.
+              {content.cta.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

@@ -17,6 +17,24 @@ export interface RichSegment {
   bold?: boolean;
 }
 
+// Servicio: el icono/imagen/color viven en el componente y se mapean por id.
+export interface ServiceItem {
+  id: string; // distribucion | cargue-descargue | bodega | inventarios | acondicionamiento | asesorias
+  title: string;
+  short: string; // descripción corta (tarjetas Home)
+  long: string; // descripción larga (página Servicios)
+}
+
+// Indicador de la sección Stats. value null => se muestra "—" (valor pendiente).
+export interface StatItem {
+  key: string; // experiencia | certificado | clientes | cobertura | cajas | vehiculos
+  value: number | null;
+  prefix: string;
+  suffix: string;
+  label: string;
+  detail: string;
+}
+
 export interface LocaleContent {
   locale: Locale;
   country: string; // "Colombia" | "España"
@@ -32,6 +50,8 @@ export interface LocaleContent {
     whatsappMessage: string;
     officeCity: string; // "Bogotá, Colombia"
     coverageInline: string; // "Bogotá, Medellín, ..." (Contacto)
+    hidePhone?: boolean; // true para ocultar teléfono en Navbar/Footer/Contacto (España, hasta tener SIM exclusiva)
+    hideWhatsapp?: boolean; // true para ocultar el botón flotante de WhatsApp
   };
 
   coverage: {
@@ -53,14 +73,15 @@ export interface LocaleContent {
     valores: { title: string; text: string }[];
   };
 
-  stats: {
-    experienceDetail: string; // "Desde 2012"
-    certifiedValue: number; // 95 / 65
-    certifiedDetail: string; // "Certificación SENA"
-    clientsDetail: string; // "En todo Colombia"
-    citiesValue: number; // 6 / nº ciudades
-    citiesDetail: string; // "Y creciendo"
-  };
+  // Servicios (Home + página Servicios) y encabezado de la página.
+  services: ServiceItem[];
+  servicesIntro: { title: string; subtitle: string };
+
+  // Recuadro de cotización (CTASection) y encabezado de la página Empleo.
+  cta: { title: string; subtitle: string };
+  empleoIntro: { title: string; subtitle: string };
+
+  stats: StatItem[];
 
   nosotros: {
     subtitle: string;
@@ -71,12 +92,14 @@ export interface LocaleContent {
 
   forms: {
     defaultDialCode: string; // "+57" | "+34"
-    tiposDocumento: string[]; // ["Cédula", "PEP"] | ["DNI", "NIE"]
+    tiposDocumento: string[]; // ["Cédula", "PEP"] | ["DNI", "NIE Comunidad Europea", "TIE"]
     documentoApiMap: Record<string, string>; // {"Cédula":"CC", ...}
     ciudades: string[];
     cargos: string[];
     sectores: string[];
     grupoEtnico?: string[]; // undefined en España (se oculta el campo)
+    nacionalidades?: string[]; // solo España: ["Español", "Extranjero"]
+    declaracion: string; // texto de la declaración obligatoria (ambos países)
   };
 }
 

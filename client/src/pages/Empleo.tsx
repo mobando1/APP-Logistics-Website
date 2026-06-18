@@ -53,14 +53,24 @@ function FileUpload({
 
 export default function EmpleoPage() {
   const { content } = useLocale();
-  const { cargos, tiposDocumento, ciudades, grupoEtnico, documentoApiMap } =
-    content.forms;
+  const isEs = content.locale === "es";
+  const {
+    cargos,
+    tiposDocumento,
+    ciudades,
+    grupoEtnico,
+    nacionalidades,
+    documentoApiMap,
+    declaracion,
+  } = content.forms;
 
   const [formData, setFormData] = useState({
+    nacionalidad: "",
     nombre: "",
     apellido: "",
     tipoDocumento: tiposDocumento[0],
     documento: "",
+    numeroSS: "",
     email: "",
     codigoPais: content.forms.defaultDialCode,
     telefono: "",
@@ -73,13 +83,9 @@ export default function EmpleoPage() {
     comentarios: "",
   });
 
-  const [fileNames, setFileNames] = useState<Record<string, string>>({
-    documentoIdentidad: "",
-    hojaVida: "",
-    medidasCorrectivas: "",
-    antecedentes: "",
-  });
+  const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [fileData, setFileData] = useState<Record<string, string>>({});
+  const [acepto, setAcepto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -113,6 +119,28 @@ export default function EmpleoPage() {
       const nombreParts = formData.nombre.trim().split(/\s+/);
       const apellidoParts = formData.apellido.trim().split(/\s+/);
 
+      // El CV es "hojaVida" en Colombia y "cvActualizado" en España.
+      const cvKey = isEs ? "cvActualizado" : "hojaVida";
+
+      const notas = isEs
+        ? [
+            formData.nacionalidad ? `Nacionalidad: ${formData.nacionalidad}` : "",
+            formData.numeroSS ? `Nº Seguridad Social: ${formData.numeroSS}` : "",
+            formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
+            formData.comentarios,
+            fileNames.pasaporte ? `Adjuntó Pasaporte: ${fileNames.pasaporte}` : "",
+            fileNames.autorizacionTrabajo
+              ? `Adjuntó Autorización de trabajo: ${fileNames.autorizacionTrabajo}`
+              : "",
+          ]
+        : [
+            formData.comentarios,
+            formData.identidadGenero ? `Género: ${formData.identidadGenero}` : "",
+            formData.grupoEtnico ? `Etnia: ${formData.grupoEtnico}` : "",
+            formData.orientacionSexual ? `Orientación: ${formData.orientacionSexual}` : "",
+            formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
+          ];
+
       const payload = {
         primerNombre: nombreParts[0] || "",
         segundoNombre: nombreParts.slice(1).join(" ") || null,
@@ -124,15 +152,9 @@ export default function EmpleoPage() {
         email: formData.email,
         ciudad: formData.ciudad,
         cargoAspira: formData.cargo,
-        experiencia: [
-          formData.comentarios,
-          formData.identidadGenero ? `Género: ${formData.identidadGenero}` : "",
-          formData.grupoEtnico ? `Etnia: ${formData.grupoEtnico}` : "",
-          formData.orientacionSexual ? `Orientación: ${formData.orientacionSexual}` : "",
-          formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
-        ].filter(Boolean).join("\n"),
-        hojaVidaUrl: fileData.hojaVida || null,
-        hojaVidaNombre: fileNames.hojaVida || null,
+        experiencia: notas.filter(Boolean).join("\n"),
+        hojaVidaUrl: fileData[cvKey] || null,
+        hojaVidaNombre: fileNames[cvKey] || null,
       };
 
       const res = await fetch(`${API_URL}/api/candidatos`, {
@@ -159,7 +181,9 @@ export default function EmpleoPage() {
       <section className="py-20">
         <div className="max-w-xl mx-auto px-4 text-center">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-primary mb-2">¡Hoja de vida enviada!</h2>
+          <h2 className="text-2xl font-bold text-primary mb-2">
+            {isEs ? "¡Candidatura enviada!" : "¡Hoja de vida enviada!"}
+          </h2>
           <p className="text-muted-foreground">
             Gracias por tu interés en APP Logistics. Revisaremos tu información y nos pondremos en contacto contigo.
           </p>
@@ -176,12 +200,10 @@ export default function EmpleoPage() {
             Únete al equipo
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mt-2 mb-4">
-            Deja tu Hoja de Vida
+            {content.empleoIntro.title}
           </h1>
           <p className="text-muted-foreground text-lg">
-            APP Logistics ha implementado un portal exclusivo para que las
-            personas que deseen participar en procesos de selección, registren
-            su hoja de vida.
+            {content.empleoIntro.subtitle}
           </p>
         </div>
 
@@ -194,11 +216,11 @@ export default function EmpleoPage() {
               </p>
               <ul className="list-disc list-inside space-y-1.5 text-sm text-amber-700">
                 <li>
-                  APP Logistics SAS no utiliza intermediarios para realizar
-                  procesos de selección o vinculación de personal.
+                  {content.companyLegalName} no utiliza intermediarios para
+                  realizar procesos de selección o vinculación de personal.
                 </li>
                 <li>
-                  Por ningún motivo APP Logistics SAS solicita dinero o
+                  Por ningún motivo {content.companyLegalName} solicita dinero o
                   cualquier otro tipo de beneficio para estudiar, analizar o
                   seleccionar a sus candidatos para las diferentes
                   convocatorias.
@@ -212,6 +234,28 @@ export default function EmpleoPage() {
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl border p-8 shadow-sm space-y-6"
         >
+          {isEs && nacionalidades && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Nacionalidad
+              </label>
+              <select
+                name="nacionalidad"
+                required
+                value={formData.nacionalidad}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+              >
+                <option value="">Selecciona tu nacionalidad</option>
+                {nacionalidades.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -277,6 +321,23 @@ export default function EmpleoPage() {
               />
             </div>
           </div>
+
+          {isEs && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Número de Seguridad Social
+              </label>
+              <input
+                type="text"
+                name="numeroSS"
+                required
+                value={formData.numeroSS}
+                onChange={handleChange}
+                placeholder="Número de Seguridad Social"
+                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+              />
+            </div>
+          )}
 
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
@@ -358,100 +419,136 @@ export default function EmpleoPage() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <FileUpload
-              label="Documento de Identidad"
-              name="documentoIdentidad"
-              onChange={handleFileChange}
-              fileName={fileNames.documentoIdentidad}
-            />
-            <FileUpload
-              label="Hoja de Vida"
-              name="hojaVida"
-              onChange={handleFileChange}
-              fileName={fileNames.hojaVida}
-            />
-          </div>
+          {/* Documentos: Colombia vs España */}
+          {isEs ? (
+            <>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FileUpload
+                  label="DNI / NIE / TIE"
+                  name="dniNieTie"
+                  onChange={handleFileChange}
+                  fileName={fileNames.dniNieTie || ""}
+                />
+                <FileUpload
+                  label="Pasaporte"
+                  name="pasaporte"
+                  onChange={handleFileChange}
+                  fileName={fileNames.pasaporte || ""}
+                />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FileUpload
+                  label="CV Actualizado"
+                  name="cvActualizado"
+                  onChange={handleFileChange}
+                  fileName={fileNames.cvActualizado || ""}
+                />
+                <FileUpload
+                  label="Autorización Permiso de Trabajo"
+                  name="autorizacionTrabajo"
+                  onChange={handleFileChange}
+                  fileName={fileNames.autorizacionTrabajo || ""}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FileUpload
+                  label="Documento de Identidad"
+                  name="documentoIdentidad"
+                  onChange={handleFileChange}
+                  fileName={fileNames.documentoIdentidad || ""}
+                />
+                <FileUpload
+                  label="Hoja de Vida"
+                  name="hojaVida"
+                  onChange={handleFileChange}
+                  fileName={fileNames.hojaVida || ""}
+                />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FileUpload
+                  label="Medidas Correctivas"
+                  name="medidasCorrectivas"
+                  onChange={handleFileChange}
+                  fileName={fileNames.medidasCorrectivas || ""}
+                />
+                <FileUpload
+                  label="Antecedentes Policía Nacional"
+                  name="antecedentes"
+                  onChange={handleFileChange}
+                  fileName={fileNames.antecedentes || ""}
+                />
+              </div>
+            </>
+          )}
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <FileUpload
-              label="Medidas Correctivas"
-              name="medidasCorrectivas"
-              onChange={handleFileChange}
-              fileName={fileNames.medidasCorrectivas}
-            />
-            <FileUpload
-              label={
-                content.locale === "es"
-                  ? "Certificado de antecedentes penales"
-                  : "Antecedentes Policía Nacional"
-              }
-              name="antecedentes"
-              onChange={handleFileChange}
-              fileName={fileNames.antecedentes}
-            />
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Identidad de Género
-              </label>
-              <select
-                name="identidadGenero"
-                value={formData.identidadGenero}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
-              >
-                <option value="">Identidad de Género</option>
-                {identidadGenero.map((i) => (
-                  <option key={i} value={i}>
-                    {i}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {grupoEtnico && (
+          {/* Campos de diversidad: solo Colombia */}
+          {!isEs && (
+            <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">
-                  Grupo Étnico
+                  Identidad de Género
                 </label>
                 <select
-                  name="grupoEtnico"
-                  value={formData.grupoEtnico}
+                  name="identidadGenero"
+                  value={formData.identidadGenero}
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
                 >
-                  <option value="">Grupo Étnico</option>
-                  {grupoEtnico.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
+                  <option value="">Identidad de Género</option>
+                  {identidadGenero.map((i) => (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {grupoEtnico && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Grupo Étnico
+                  </label>
+                  <select
+                    name="grupoEtnico"
+                    value={formData.grupoEtnico}
+                    onChange={handleChange}
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+                  >
+                    <option value="">Grupo Étnico</option>
+                    {grupoEtnico.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-5">
+            {!isEs && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Orientación Sexual
+                </label>
+                <select
+                  name="orientacionSexual"
+                  value={formData.orientacionSexual}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
+                >
+                  <option value="">Orientación Sexual</option>
+                  {orientacionSexual.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
                     </option>
                   ))}
                 </select>
               </div>
             )}
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Orientación Sexual
-              </label>
-              <select
-                name="orientacionSexual"
-                value={formData.orientacionSexual}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
-              >
-                <option value="">Orientación Sexual</option>
-                {orientacionSexual.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-            </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 Fecha de inicio disponible
@@ -480,6 +577,21 @@ export default function EmpleoPage() {
             />
           </div>
 
+          {/* Declaración obligatoria (Colombia y España) */}
+          <label className="flex items-start gap-3 bg-muted/40 border border-border rounded-xl p-4 cursor-pointer">
+            <input
+              type="checkbox"
+              name="acepto"
+              required
+              checked={acepto}
+              onChange={(e) => setAcepto(e.target.checked)}
+              className="mt-1 h-4 w-4 shrink-0 accent-accent"
+            />
+            <span className="text-sm text-muted-foreground leading-relaxed">
+              {declaracion}
+            </span>
+          </label>
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
               {error}
@@ -489,8 +601,8 @@ export default function EmpleoPage() {
           <div className="text-center pt-2">
             <button
               type="submit"
-              disabled={submitting}
-              className="bg-accent hover:bg-accent/90 text-white px-12 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center gap-2 disabled:opacity-50"
+              disabled={submitting || !acepto}
+              className="bg-accent hover:bg-accent/90 text-white px-12 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {submitting ? "Enviando..." : "Enviar"}

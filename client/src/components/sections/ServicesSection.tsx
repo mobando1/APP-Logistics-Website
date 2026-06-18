@@ -1,65 +1,14 @@
-import { Truck, Package, Warehouse, ClipboardList, Boxes, GraduationCap } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@client/lib/utils";
-
-const services = [
-  {
-    id: "distribucion",
-    icon: Truck,
-    title: "Distribución de Mercancías",
-    description:
-      "Personal idóneo para procesos de distribución urbana, entrega de pedidos, operaciones Tienda A Tienda.",
-    image: "/servicios/distribucion.jpg",
-    iconColor: "text-blue-600",
-  },
-  {
-    id: "cargue-descargue",
-    icon: Package,
-    title: "Cargue y Descargue",
-    description:
-      "Apoyo a cargue y descargue de todo tipo de mercancía y de todo tipo de vehículos: Tractomulas, Minimulas, Dobletroque, Sencillos, Turbos.",
-    image: "/servicios/cargue-descargue.jpg",
-    iconColor: "text-accent",
-  },
-  {
-    id: "bodega",
-    icon: Warehouse,
-    title: "Operaciones en Bodega",
-    description:
-      "Personal para actividades de picking, packing, ubicación de mercancía en bodega, devoluciones, inventarios.",
-    image: "/servicios/bodega.jpg",
-    iconColor: "text-emerald-600",
-  },
-  {
-    id: "inventarios",
-    icon: ClipboardList,
-    title: "Inventarios",
-    description:
-      "Personal con experiencia en la toma de inventarios y en el uso y desarrollo de herramientas para optimizar tiempos y mejorar la calidad de la información.",
-    image: "/servicios/inventarios.jpg",
-    iconColor: "text-violet-600",
-  },
-  {
-    id: "acondicionamiento",
-    icon: Boxes,
-    title: "Acondicionamiento Secundario",
-    description:
-      "Servicios de reempacado, toma de seriales y reacondicionamiento para integrar servicios complementarios.",
-    image: "/servicios/acondicionamiento.jpg",
-    iconColor: "text-rose-600",
-  },
-  {
-    id: "asesorias",
-    icon: GraduationCap,
-    title: "Asesorías y Capacitación",
-    description:
-      "Equipo experto para potenciar oportunidades de mejora, aumentar capacidades y disminuir tiempos de respuesta.",
-    image: "/servicios/asesorias.jpg",
-    iconColor: "text-amber-600",
-  },
-];
+import { useLocale } from "@client/lib/LocaleContext";
+import { servicePresentation } from "@client/lib/servicePresentation";
 
 export default function ServicesSection() {
+  const { content } = useLocale();
+  const services = content.services.map((s) => ({
+    ...s,
+    image: servicePresentation[s.id]?.image,
+  }));
   return (
     <section className="py-16 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,7 +52,7 @@ export default function ServicesSection() {
                   {service.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 flex-1">
-                  {service.description}
+                  {service.short}
                 </p>
                 <div className="mt-4 text-sm font-semibold text-accent flex items-center gap-1 group-hover:gap-2 transition-all">
                   Ver más <span className="text-lg">→</span>

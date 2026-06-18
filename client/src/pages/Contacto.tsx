@@ -209,18 +209,20 @@ export default function ContactoPage() {
                 Información de Contacto
               </h3>
               <div className="space-y-5">
-                <a
-                  href={`tel:${content.contact.phoneTel}`}
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
-                    <Phone className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-white/50">Teléfono</p>
-                    <p className="font-medium">{content.contact.phoneDisplay}</p>
-                  </div>
-                </a>
+                {!content.contact.hidePhone && (
+                  <a
+                    href={`tel:${content.contact.phoneTel}`}
+                    className="flex items-center gap-4 group"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-accent transition-colors">
+                      <Phone className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-white/50">Teléfono</p>
+                      <p className="font-medium">{content.contact.phoneDisplay}</p>
+                    </div>
+                  </a>
+                )}
                 <a
                   href={`mailto:${content.contact.email}`}
                   className="flex items-center gap-4 group"

@@ -15,13 +15,12 @@ const co: LocaleContent = {
     whatsappNumber: "573153402545",
     whatsappMessage: "Hola, quiero información sobre sus servicios logísticos.",
     officeCity: "Bogotá, Colombia",
-    coverageInline:
-      "Bogotá, Medellín, Cali, Barranquilla, Cartagena, Bucaramanga",
+    coverageInline: "Bogotá, Medellín, Cali, Barranquilla",
   },
 
   coverage: {
     intro:
-      "Nuestra oficina central se encuentra en Bogotá. En enero de 2020 abrimos en Medellín y en marzo de 2022 iniciamos operaciones en Cali y Barranquilla. Hoy también tenemos cobertura en Cartagena y Bucaramanga.",
+      "Nuestra oficina central se encuentra en Bogotá. En enero de 2020 abrimos en Medellín y en marzo de 2022 iniciamos operaciones en Cali y Barranquilla.",
     cities: [
       {
         name: "Bogotá",
@@ -47,21 +46,9 @@ const co: LocaleContent = {
         image:
           "https://images.unsplash.com/photo-1548372007-09f87bdf7a35?w=400&h=300&fit=crop",
       },
-      {
-        name: "Cartagena",
-        detail: "",
-        image:
-          "https://images.unsplash.com/photo-1583531352515-8884af319dc1?w=400&h=300&fit=crop",
-      },
-      {
-        name: "Bucaramanga",
-        detail: "",
-        image: "/ciudades/bucaramanga.jpg",
-      },
     ],
   },
-  footerCities:
-    "Bogotá | Medellín | Cali | Barranquilla | Cartagena | Bucaramanga",
+  footerCities: "Bogotá | Medellín | Cali | Barranquilla",
   footerDescription:
     "Empresa 100% colombiana fundada en 2012. Expertos en manipulación de mercancía y operaciones logísticas.",
   footerCertifications:
@@ -98,14 +85,117 @@ const co: LocaleContent = {
     ],
   },
 
-  stats: {
-    experienceDetail: "Desde 2012",
-    certifiedValue: 95,
-    certifiedDetail: "Certificación SENA",
-    clientsDetail: "En todo Colombia",
-    citiesValue: 4,
-    citiesDetail: "Y creciendo",
+  services: [
+    {
+      id: "distribucion",
+      title: "Distribución de Mercancías",
+      short:
+        "Personal calificado para distribución urbana, entrega de pedidos y operaciones tienda a tienda.",
+      long: "En APP Logistics entendemos que la distribución es el punto de contacto final con el cliente y un factor clave para su satisfacción. Por ello, contamos con personal capacitado para realizar entregas en clientes estratégicos, grandes superficies y operaciones Tienda a Tienda (TAT), garantizando cumplimiento, agilidad y un servicio que refleja la calidad y confianza de las marcas que representamos.",
+    },
+    {
+      id: "cargue-descargue",
+      title: "Cargue y Descargue de Mercancías",
+      short:
+        "Apoyamos sus operaciones logísticas con personal capacitado para el manejo de todo tipo de mercancías.",
+      long: "Ofrecemos soluciones especializadas de cargue y descargue en el lugar y momento que nuestros clientes lo requieran, para mercancías unitarias o masivas de cualquier tipo. Nuestro personal altamente capacitado trabaja bajo estándares de seguridad, eficiencia y productividad, contribuyendo a optimizar los tiempos de operación y reducir costos. En APP Logistics promovemos el mejoramiento continuo de nuestros procesos para generar mayor valor y eficiencia en cada operación logística.",
+    },
+    {
+      id: "bodega",
+      title: "Operaciones en Bodega",
+      short:
+        "Personal capacitado para apoyar las operaciones de almacenamiento, alistamiento y control de mercancías.",
+      long: "En APP Logistics contamos con personal capacitado para apoyar de manera eficiente las diferentes actividades dentro de centros de distribución y bodegas. Gracias a nuestros procesos de formación continua, garantizamos un servicio confiable en labores como alistamiento de pedidos, picking, packing, recepción de devoluciones, inventarios y ubicación de mercancías. Nuestra flexibilidad operativa nos permite responder oportunamente a los incrementos de demanda y picos de operación, contribuyendo a la productividad y continuidad de las operaciones de nuestros clientes.",
+    },
+    {
+      id: "inventarios",
+      title: "Inventarios",
+      short:
+        "Garantizamos inventarios precisos y confiables para una mejor gestión de sus operaciones.",
+      long: "Entendemos que el inventario es un activo fundamental para garantizar la continuidad operativa y el nivel de servicio de cualquier organización. Por ello, en APP Logistics contamos con personal especializado en la toma, control y validación de inventarios, apoyado por herramientas y metodologías que optimizan los tiempos de ejecución y mejoran la calidad de la información recopilada. Nuestro objetivo es proporcionar datos confiables que faciliten la toma de decisiones y contribuyan a una gestión eficiente de los recursos de nuestros clientes.",
+    },
+    {
+      id: "acondicionamiento",
+      title: "Acondicionamiento Secundario",
+      short:
+        "Soluciones de acondicionamiento y adecuación de mercancías para optimizar sus procesos logísticos.",
+      long: "Como parte de nuestra oferta de servicios complementarios, apoyamos a nuestros clientes en procesos de acondicionamiento secundario que agregan valor a sus operaciones logísticas. Contamos con personal capacitado para realizar actividades de reempaque, toma de seriales, etiquetado, clasificación y reacondicionamiento de mercancías, garantizando calidad, trazabilidad y cumplimiento de los requerimientos específicos de cada operación.",
+    },
+    {
+      id: "asesorias",
+      title: "Asesorías y Capacitación",
+      short:
+        "Expertos en logística enfocados en optimizar procesos, fortalecer capacidades y generar valor para su operación.",
+      long: "Ponemos a disposición de nuestros clientes un equipo de profesionales con amplia experiencia en las diferentes áreas de la cadena de suministro. A través de servicios de asesoría y capacitación, identificamos oportunidades de mejora y desarrollamos soluciones orientadas a optimizar procesos, incrementar la productividad, reducir costos operativos y fortalecer la capacidad de respuesta de las organizaciones frente a las exigencias del mercado.",
+    },
+  ],
+  servicesIntro: {
+    title: "Expertos en cargue y descargue de mercancías",
+    subtitle:
+      "Somos especialistas en operaciones de cargue y descargue, un eslabón fundamental para el éxito de cualquier cadena logística. En APP Logistics ponemos a disposición de nuestros clientes personal calificado, procesos seguros y una amplia experiencia operativa para garantizar eficiencia, productividad y cuidado de la mercancía en cada movimiento. Trabajamos para que nuestros clientes puedan enfocarse en su negocio mientras nosotros nos encargamos de la ejecución logística.",
   },
+
+  cta: {
+    title: "¿Busca personal confiable para su operación logística?",
+    subtitle:
+      "Cuéntenos qué necesita y prepararemos una propuesta ajustada a sus requerimientos. Estamos listos para apoyar sus procesos de cargue, descargue, distribución, bodega e inventarios.",
+  },
+  empleoIntro: {
+    title: "Construye tu futuro con APP Logistics",
+    subtitle:
+      "Únete a un equipo comprometido con la excelencia logística. Comparte tu hoja de vida y forma parte de una empresa que impulsa el crecimiento y desarrollo de su talento humano.",
+  },
+
+  stats: [
+    {
+      key: "experiencia",
+      value: 14,
+      prefix: "+",
+      suffix: "",
+      label: "Años de experiencia",
+      detail: "Desde 2012",
+    },
+    {
+      key: "certificado",
+      value: 65,
+      prefix: "",
+      suffix: "%",
+      label: "Personal certificado",
+      detail: "Certificación SENA",
+    },
+    {
+      key: "clientes",
+      value: 100,
+      prefix: "",
+      suffix: "%",
+      label: "Clientes satisfechos",
+      detail: "En todo Colombia",
+    },
+    {
+      key: "cobertura",
+      value: 4,
+      prefix: "",
+      suffix: "",
+      label: "Ciudades de cobertura",
+      detail: "Y creciendo",
+    },
+    {
+      key: "cajas",
+      value: null, // PENDIENTE: valor del último trimestre (lo pasa el cliente)
+      prefix: "",
+      suffix: "+",
+      label: "Cajas movidas",
+      detail: "Último trimestre",
+    },
+    {
+      key: "vehiculos",
+      value: null, // PENDIENTE: valor del último trimestre (lo pasa el cliente)
+      prefix: "",
+      suffix: "+",
+      label: "Vehículos cargados/descargados",
+      detail: "Último trimestre",
+    },
+  ],
 
   nosotros: {
     subtitle: "APP Logistics: precisión, confianza y excelencia operativa",
@@ -199,8 +289,7 @@ const co: LocaleContent = {
       { year: "2022", event: "Inicio de operaciones en Cali y Barranquilla" },
       {
         year: "2026",
-        event:
-          "En expansión: nueva cobertura en Cartagena y Bucaramanga y proyección internacional hacia España",
+        event: "En expansión: proyección internacional hacia España",
       },
     ],
   },
@@ -209,15 +298,7 @@ const co: LocaleContent = {
     defaultDialCode: "+57",
     tiposDocumento: ["Cédula", "PEP"],
     documentoApiMap: { Cédula: "CC", PEP: "PEP" },
-    ciudades: [
-      "Bogotá",
-      "Medellín",
-      "Cali",
-      "Barranquilla",
-      "Cartagena",
-      "Bucaramanga",
-      "Otra",
-    ],
+    ciudades: ["Bogotá", "Medellín", "Cali", "Barranquilla", "Otra"],
     cargos: [
       "Auxiliar de operaciones",
       "Montacarguista",
@@ -243,6 +324,8 @@ const co: LocaleContent = {
       "Rom/Gitano",
       "Prefiero no decir",
     ],
+    declaracion:
+      "Declaro que la información suministrada es veraz y que dispongo de los documentos que acreditan mi experiencia laboral, formación académica, cursos, capacitaciones y demás datos incluidos en mi candidatura, comprometiéndome a presentarlos cuando sean requeridos por APP Logistics.",
   },
 };
 

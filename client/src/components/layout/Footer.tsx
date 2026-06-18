@@ -84,15 +84,17 @@ export default function Footer() {
                 <MapPin className="h-5 w-5 shrink-0 text-accent mt-0.5" />
                 <span>{content.footerCities}</span>
               </li>
-              <li>
-                <a
-                  href={`tel:${content.contact.phoneTel}`}
-                  className="flex items-center gap-3 hover:text-accent transition-colors"
-                >
-                  <Phone className="h-5 w-5 shrink-0 text-accent" />
-                  {content.contact.phoneDisplay}
-                </a>
-              </li>
+              {!content.contact.hidePhone && (
+                <li>
+                  <a
+                    href={`tel:${content.contact.phoneTel}`}
+                    className="flex items-center gap-3 hover:text-accent transition-colors"
+                  >
+                    <Phone className="h-5 w-5 shrink-0 text-accent" />
+                    {content.contact.phoneDisplay}
+                  </a>
+                </li>
+              )}
               <li>
                 <a
                   href={`mailto:${content.contact.email}`}
