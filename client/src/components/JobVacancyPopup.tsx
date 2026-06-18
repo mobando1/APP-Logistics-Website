@@ -3,23 +3,18 @@ import { Link, useLocation } from "wouter";
 import { X, Mail, CheckCircle2, FileText } from "lucide-react";
 import { useLocale } from "@client/lib/LocaleContext";
 
-const SEEN_KEY = "vacancyPopupSeen";
-
 export default function JobVacancyPopup() {
   const { content } = useLocale();
   const vacancy = content.vacancy;
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
 
-  // Mostrar una vez por sesión, tras un pequeño retardo. Solo si hay vacante (Colombia)
-  // y no estamos ya en la página de empleo.
+  // Mostrar SIEMPRE en la página de inicio (al entrar, volver o refrescar), tras un
+  // pequeño retardo. Solo si hay vacante (Colombia). Fuera de la home se oculta.
   useEffect(() => {
-    if (!vacancy) return;
-    if (location === "/empleo") return;
-    try {
-      if (sessionStorage.getItem(SEEN_KEY)) return;
-    } catch {
-      /* sessionStorage no disponible: igual mostramos una vez por carga */
+    if (!vacancy || location !== "/") {
+      setOpen(false);
+      return;
     }
     const t = setTimeout(() => setOpen(true), 800);
     return () => clearTimeout(t);
@@ -37,14 +32,7 @@ export default function JobVacancyPopup() {
 
   if (!vacancy || !open) return null;
 
-  const close = () => {
-    setOpen(false);
-    try {
-      sessionStorage.setItem(SEEN_KEY, "1");
-    } catch {
-      /* ignorar */
-    }
-  };
+  const close = () => setOpen(false);
 
   return (
     <div
