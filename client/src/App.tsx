@@ -5,6 +5,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import WhatsAppButton from "./components/layout/WhatsAppButton";
+import JobVacancyPopup from "./components/JobVacancyPopup";
 import Reveal from "./components/ui/Reveal";
 import HeroSection from "./components/sections/HeroSection";
 import ServicesSection from "./components/sections/ServicesSection";
@@ -86,6 +87,7 @@ export default function App() {
           </main>
           <Footer />
           <WhatsAppButton />
+          <JobVacancyPopup />
         </div>
       </Router>
     </LocaleProvider>

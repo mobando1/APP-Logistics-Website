@@ -139,6 +139,26 @@ const co: LocaleContent = {
       "Somos especialistas en operaciones de cargue y descargue, un eslabón fundamental para el éxito de cualquier cadena logística. En APP Logistics ponemos a disposición de nuestros clientes personal calificado, procesos seguros y una amplia experiencia operativa para garantizar eficiencia, productividad y cuidado de la mercancía en cada movimiento. Trabajamos para que nuestros clientes puedan enfocarse en su negocio mientras nosotros nos encargamos de la ejecución logística.",
   },
 
+  vacancy: {
+    title: "VACANTES LABORALES",
+    city: "Sabaneta - Antioquia",
+    // Imagen de referencia (bodega/logística). Reemplazable por la foto del flyer del cliente.
+    image:
+      "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&h=360&fit=crop",
+    buscamos: ["Auxiliares de cargue y descargue", "Auxiliares de bodega"],
+    requisitos: [
+      "Bachillerato terminado",
+      "1 año de experiencia en operaciones logísticas",
+      "Tiempo completo",
+      "Preferiblemente que vivan cerca a la bodega",
+    ],
+    beneficios: [
+      "Contrato directo con la empresa",
+      "SMLV + prestaciones de ley",
+    ],
+    email: "seleccion@applogistics.com.co",
+  },
+
   cta: {
     title: "¿Busca personal confiable para su operación logística?",
     subtitle:

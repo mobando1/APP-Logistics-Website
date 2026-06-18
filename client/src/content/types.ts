@@ -77,6 +77,17 @@ export interface LocaleContent {
   services: ServiceItem[];
   servicesIntro: { title: string; subtitle: string };
 
+  // Pop-up de vacante laboral. Solo aparece si el locale lo define (Colombia).
+  vacancy?: {
+    title: string; // "VACANTES LABORALES"
+    city: string; // "Sabaneta - Antioquia"
+    image: string; // banner de referencia (reemplazable)
+    buscamos: string[];
+    requisitos: string[];
+    beneficios: string[];
+    email: string; // se conserva; sin teléfono ni web
+  };
+
   // Recuadro de cotización (CTASection) y encabezado de la página Empleo.
   cta: { title: string; subtitle: string };
   empleoIntro: { title: string; subtitle: string };
