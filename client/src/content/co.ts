@@ -16,6 +16,10 @@ const co: LocaleContent = {
     whatsappMessage: "Hola, quiero información sobre sus servicios logísticos.",
     officeCity: "Bogotá, Colombia",
     coverageInline: "Bogotá, Medellín, Cali, Barranquilla",
+    // Tel. y WhatsApp ocultos: el cliente usará una línea/SIM exclusiva, aún por definir.
+    // Para reactivarlos: poner estos flags en false (o eliminarlos).
+    hidePhone: true,
+    hideWhatsapp: true,
   },
 
   coverage: {
