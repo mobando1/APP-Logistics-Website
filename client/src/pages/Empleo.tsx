@@ -98,13 +98,22 @@ export default function EmpleoPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const MAX_FILE_BYTES = 2 * 1024 * 1024; // 2MB por archivo
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const field = e.target.name;
     const file = e.target.files?.[0];
     if (!file) return;
-    setFileNames({ ...fileNames, [e.target.name]: file.name });
+    if (file.size > MAX_FILE_BYTES) {
+      setError(`El archivo "${file.name}" supera el tamaño máximo de 2MB.`);
+      e.target.value = ""; // permite reintentar con el mismo archivo
+      return;
+    }
+    setError("");
+    setFileNames({ ...fileNames, [field]: file.name });
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFileData((prev) => ({ ...prev, [e.target.name]: reader.result as string }));
+      setFileData((prev) => ({ ...prev, [field]: reader.result as string }));
     };
     reader.readAsDataURL(file);
   };
@@ -121,6 +130,8 @@ export default function EmpleoPage() {
 
       // El CV es "hojaVida" en Colombia y "cvActualizado" en España.
       const cvKey = isEs ? "cvActualizado" : "hojaVida";
+      // El documento de identidad es "dniNieTie" en España y "documentoIdentidad" en Colombia.
+      const idKey = isEs ? "dniNieTie" : "documentoIdentidad";
 
       const notas = isEs
         ? [
@@ -155,6 +166,13 @@ export default function EmpleoPage() {
         experiencia: notas.filter(Boolean).join("\n"),
         hojaVidaUrl: fileData[cvKey] || null,
         hojaVidaNombre: fileNames[cvKey] || null,
+        documentoIdentidadUrl: fileData[idKey] || null,
+        documentoIdentidadNombre: fileNames[idKey] || null,
+        // Estos dos solo existen en el formulario de Colombia; en España quedan null.
+        medidasCorrectivasUrl: fileData.medidasCorrectivas || null,
+        medidasCorrectivasNombre: fileNames.medidasCorrectivas || null,
+        antecedentesUrl: fileData.antecedentes || null,
+        antecedentesNombre: fileNames.antecedentes || null,
       };
 
       const res = await fetch(`${API_URL}/api/candidatos`, {
