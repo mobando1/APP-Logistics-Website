@@ -205,7 +205,7 @@ const co: LocaleContent = {
     },
     {
       key: "cajas",
-      value: null, // PENDIENTE: valor del último trimestre (lo pasa el cliente)
+      value: 1219973,
       prefix: "",
       suffix: "+",
       label: "Cajas movidas",
@@ -213,11 +213,11 @@ const co: LocaleContent = {
     },
     {
       key: "vehiculos",
-      value: null, // PENDIENTE: valor del último trimestre (lo pasa el cliente)
+      value: 5178,
       prefix: "",
       suffix: "+",
-      label: "Vehículos cargados/descargados",
-      detail: "Último trimestre",
+      label: "Vehículos registrados",
+      detail: "A nivel nacional",
     },
   ],
 
