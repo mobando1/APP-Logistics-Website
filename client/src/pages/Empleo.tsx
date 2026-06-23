@@ -139,10 +139,6 @@ export default function EmpleoPage() {
             formData.numeroSS ? `Nº Seguridad Social: ${formData.numeroSS}` : "",
             formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
             formData.comentarios,
-            fileNames.pasaporte ? `Adjuntó Pasaporte: ${fileNames.pasaporte}` : "",
-            fileNames.autorizacionTrabajo
-              ? `Adjuntó Autorización de trabajo: ${fileNames.autorizacionTrabajo}`
-              : "",
           ]
         : [
             formData.comentarios,
@@ -173,6 +169,11 @@ export default function EmpleoPage() {
         medidasCorrectivasNombre: fileNames.medidasCorrectivas || null,
         antecedentesUrl: fileData.antecedentes || null,
         antecedentesNombre: fileNames.antecedentes || null,
+        // Estos dos solo existen en el formulario de España; en Colombia quedan null.
+        pasaporteUrl: fileData.pasaporte || null,
+        pasaporteNombre: fileNames.pasaporte || null,
+        autorizacionTrabajoUrl: fileData.autorizacionTrabajo || null,
+        autorizacionTrabajoNombre: fileNames.autorizacionTrabajo || null,
       };
 
       const res = await fetch(`${API_URL}/api/candidatos`, {
