@@ -84,6 +84,20 @@ export default function ContactoPage() {
 
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3">
+            {submitted ? (
+              <div className="bg-white rounded-2xl border p-12 shadow-sm flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-5">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-primary mb-2">
+                  ¡Mensaje enviado!
+                </h3>
+                <p className="text-muted-foreground">
+                  Gracias por contactarnos. Nuestro equipo se pondrá en contacto
+                  con usted lo antes posible.
+                </p>
+              </div>
+            ) : (
             <form
               onSubmit={handleSubmit}
               className="bg-white rounded-2xl border p-8 shadow-sm space-y-5"
@@ -193,14 +207,29 @@ export default function ContactoPage() {
                 />
               </div>
 
+              {error && (
+                <p className="text-sm text-red-600 font-medium">{error}</p>
+              )}
+
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-10 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
+                disabled={submitting}
+                className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-10 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               >
-                <Send className="h-4 w-4" />
-                Enviar Mensaje
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Enviar Mensaje
+                  </>
+                )}
               </button>
             </form>
+            )}
           </div>
 
           <div className="lg:col-span-2 space-y-6">
