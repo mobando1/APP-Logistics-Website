@@ -133,21 +133,6 @@ export default function EmpleoPage() {
       // El documento de identidad es "dniNieTie" en España y "documentoIdentidad" en Colombia.
       const idKey = isEs ? "dniNieTie" : "documentoIdentidad";
 
-      const notas = isEs
-        ? [
-            formData.nacionalidad ? `Nacionalidad: ${formData.nacionalidad}` : "",
-            formData.numeroSS ? `Nº Seguridad Social: ${formData.numeroSS}` : "",
-            formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
-            formData.comentarios,
-          ]
-        : [
-            formData.comentarios,
-            formData.identidadGenero ? `Género: ${formData.identidadGenero}` : "",
-            formData.grupoEtnico ? `Etnia: ${formData.grupoEtnico}` : "",
-            formData.orientacionSexual ? `Orientación: ${formData.orientacionSexual}` : "",
-            formData.fechaDisponible ? `Disponible desde: ${formData.fechaDisponible}` : "",
-          ];
-
       const payload = {
         primerNombre: nombreParts[0] || "",
         segundoNombre: nombreParts.slice(1).join(" ") || null,
@@ -159,7 +144,15 @@ export default function EmpleoPage() {
         email: formData.email,
         ciudad: formData.ciudad,
         cargoAspira: formData.cargo,
-        experiencia: notas.filter(Boolean).join("\n"),
+        // Datos personales en campos propios (antes iban todos mezclados en
+        // "experiencia"). Los que no apliquen a cada país quedan vacíos.
+        nacionalidad: formData.nacionalidad || null,
+        numeroSeguridadSocial: formData.numeroSS || null,
+        identidadGenero: formData.identidadGenero || null,
+        grupoEtnico: formData.grupoEtnico || null,
+        orientacionSexual: formData.orientacionSexual || null,
+        fechaDisponible: formData.fechaDisponible || null,
+        comentarios: formData.comentarios || null,
         hojaVidaUrl: fileData[cvKey] || null,
         hojaVidaNombre: fileNames[cvKey] || null,
         documentoIdentidadUrl: fileData[idKey] || null,
