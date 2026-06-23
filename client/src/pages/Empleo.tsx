@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 import { useLocale } from "@client/lib/LocaleContext";
-
-const API_URL = "https://app-server-production-65d5.up.railway.app";
+import { postJson } from "@client/lib/api";
 
 const identidadGenero = [
   "Masculino",
@@ -169,20 +168,15 @@ export default function EmpleoPage() {
         autorizacionTrabajoNombre: fileNames.autorizacionTrabajo || null,
       };
 
-      const res = await fetch(`${API_URL}/api/candidatos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await postJson("/api/lead/candidato", payload);
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Error al enviar");
-      }
+      if (!res.ok) throw new Error("Error al enviar");
 
       setSubmitted(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al enviar. Intenta de nuevo.");
+    } catch {
+      setError(
+        `No pudimos enviar tu postulación en este momento. Inténtalo de nuevo o escríbenos a ${content.contact.email}.`
+      );
     } finally {
       setSubmitting(false);
     }

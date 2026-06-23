@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
 import { useLocale } from "@client/lib/LocaleContext";
-
-const API_URL = "https://app-server-production-65d5.up.railway.app";
+import { postJson } from "@client/lib/api";
 
 export default function ContactoPage() {
   const { content } = useLocale();
@@ -37,16 +36,14 @@ export default function ContactoPage() {
         mensaje: formData.mensaje,
       };
 
-      const res = await fetch(`${API_URL}/api/cotizaciones`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await postJson("/api/lead/cotizacion", payload);
 
       if (!res.ok) throw new Error("Error al enviar");
       setSubmitted(true);
     } catch {
-      setError("Error al enviar. Intenta de nuevo.");
+      setError(
+        `No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo o escríbenos directamente a ${content.contact.salesEmail}.`
+      );
     } finally {
       setSubmitting(false);
     }
