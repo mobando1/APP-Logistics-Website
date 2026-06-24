@@ -7,6 +7,10 @@
 // Basta con que UNA funcione para no perder el lead: si RASTREO está caído, el
 // equipo igual recibe el correo; si el correo falla, RASTREO ya lo guardó. Solo
 // se responde error al usuario si fallan AMBAS.
+//
+// Además, como cortesía, se envía un correo de CONFIRMACIÓN personalizado a la
+// persona que llenó el formulario (postulante o contacto). Es best-effort: corre
+// en paralelo y nunca afecta si el lead se guardó o no.
 
 import type { Express, Request, Response } from "express";
 
@@ -59,32 +63,39 @@ async function forwardToBackend(
   return false;
 }
 
-// Correo de respaldo directo vía la API HTTP de Resend (sin SDK, con fetch).
-// Registra el motivo del fallo en consola (visible en los logs de Railway):
-// sin diagnóstico, un correo que no llega es indistinguible de uno que no se
-// intentó enviar.
-async function sendBackupEmail(subject: string, html: string): Promise<boolean> {
+// Envío genérico vía la API HTTP de Resend (sin SDK, con fetch). Registra el
+// motivo del fallo en consola (visible en los logs de Railway): sin diagnóstico,
+// un correo que no llega es indistinguible de uno que no se intentó enviar.
+async function postToResend(opts: {
+  to: string[];
+  subject: string;
+  html: string;
+  replyTo?: string[];
+  label: string; // para los logs: "correo de respaldo", "correo de confirmación"…
+}): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.error(
-      "[leads] correo de respaldo OMITIDO: falta RESEND_API_KEY en este servicio (no es la misma variable que la de RASTREO)."
+      `[leads] ${opts.label} OMITIDO: falta RESEND_API_KEY en este servicio (no es la misma variable que la de RASTREO).`
     );
-    return false; // sin clave, no hay canal de respaldo por correo
+    return false; // sin clave, no hay canal de correo
   }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
+    const body: Record<string, unknown> = {
+      from: EMAIL_FROM,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    };
+    if (opts.replyTo && opts.replyTo.length) body.reply_to = opts.replyTo;
     const res = await fetch(RESEND_ENDPOINT, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: notifyEmails(),
-        subject,
-        html,
-      }),
+      body: JSON.stringify(body),
       signal: controller.signal,
     });
     clearTimeout(timer);
@@ -93,17 +104,35 @@ async function sendBackupEmail(subject: string, html: string): Promise<boolean> 
       // inválida. El cuerpo de la respuesta trae el motivo exacto.
       const detail = await res.text().catch(() => "");
       console.error(
-        `[leads] Resend rechazó el correo (HTTP ${res.status}) from="${EMAIL_FROM}" to=${JSON.stringify(
-          notifyEmails()
+        `[leads] Resend rechazó ${opts.label} (HTTP ${res.status}) from="${EMAIL_FROM}" to=${JSON.stringify(
+          opts.to
         )}: ${detail}`
       );
     }
     return res.ok;
   } catch (err) {
     clearTimeout(timer);
-    console.error("[leads] error de red/timeout enviando el correo de respaldo:", err);
+    console.error(`[leads] error de red/timeout enviando ${opts.label}:`, err);
     return false;
   }
+}
+
+// Aviso interno al equipo (a las bandejas de NOTIFY_EMAIL).
+function sendBackupEmail(subject: string, html: string): Promise<boolean> {
+  return postToResend({ to: notifyEmails(), subject, html, label: "correo de respaldo" });
+}
+
+// Confirmación personalizada a quien llenó el formulario (postulante o contacto).
+// reply_to apunta al equipo para que, si la persona responde, su correo llegue a
+// una bandeja real y no al buzón no-reply.
+function sendConfirmationEmail(to: string, subject: string, html: string): Promise<boolean> {
+  return postToResend({
+    to: [to],
+    subject,
+    html,
+    replyTo: notifyEmails().slice(0, 1),
+    label: "correo de confirmación",
+  });
 }
 
 // Escapa texto del usuario antes de meterlo en el HTML del correo.
@@ -138,6 +167,34 @@ function wrap(title: string, inner: string): string {
   );
 }
 
+// Devuelve el email saneado si parece válido, o null. Evita pedirle a Resend que
+// envíe a una dirección rota (y evita el rebote correspondiente).
+function looksLikeEmail(v: unknown): string | null {
+  const s = String(v ?? "").trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) ? s : null;
+}
+
+// Plantilla con marca para el correo de confirmación que recibe la persona.
+// `greeting` y los `paragraphs` ya vienen con el texto del usuario escapado; los
+// párrafos pueden traer <strong>/<br> que ponemos nosotros, no el usuario.
+function confirmationWrap(greeting: string, paragraphs: string[]): string {
+  const body = paragraphs
+    .map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;">${p}</p>`)
+    .join("");
+  return (
+    `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;color:#1f2937;">` +
+    `<div style="background:#0f172a;padding:20px 24px;border-radius:8px 8px 0 0;">` +
+    `<span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.5px;">APP&nbsp;Logistics</span>` +
+    `</div>` +
+    `<div style="padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;">` +
+    `<p style="margin:0 0 16px;font-size:16px;font-weight:600;">${greeting}</p>` +
+    body +
+    `<p style="margin:20px 0 0;font-size:12px;color:#9ca3af;">Este es un mensaje automático de confirmación enviado desde el sitio web de APP Logistics.</p>` +
+    `</div>` +
+    `</div>`
+  );
+}
+
 // Limitador simple en memoria para proteger el canal de correo de abusos.
 // Este servidor es una sola instancia, así que un Map en memoria basta.
 const HITS = new Map<string, number[]>();
@@ -154,7 +211,14 @@ function tooMany(ip: string): boolean {
 async function handle(
   req: Request,
   res: Response,
-  opts: { backendPath: string; subject: string; html: string }
+  opts: {
+    backendPath: string;
+    subject: string;
+    html: string;
+    // Confirmación opcional para la persona que llenó el formulario. Es
+    // "best-effort": corre en paralelo y NO decide si el lead se guardó.
+    confirmation?: { to: string; subject: string; html: string } | null;
+  }
 ) {
   const clientIp = (req.ip || "").replace(/^::ffff:/, "");
   if (tooMany(clientIp)) {
@@ -162,10 +226,19 @@ async function handle(
       .status(429)
       .json({ ok: false, message: "Demasiados envíos. Intenta más tarde." });
   }
-  // Dos canales en paralelo. No perdemos el lead si AL MENOS uno funciona.
+  // Canales en paralelo. No perdemos el lead si AL MENOS uno de los dos
+  // primeros (RASTREO / aviso interno) funciona. La confirmación al usuario es
+  // un extra y no afecta la respuesta.
   const [backendOk, emailOk] = await Promise.all([
     forwardToBackend(opts.backendPath, req.body, clientIp),
     sendBackupEmail(opts.subject, opts.html),
+    opts.confirmation
+      ? sendConfirmationEmail(
+          opts.confirmation.to,
+          opts.confirmation.subject,
+          opts.confirmation.html
+        )
+      : Promise.resolve(false),
   ]);
   if (backendOk || emailOk) {
     return res.status(201).json({ ok: true, backend: backendOk, email: emailOk });
@@ -192,7 +265,29 @@ export function registerLeadRoutes(app: Express) {
         ["Mensaje", b.mensaje],
       ])
     );
-    await handle(req, res, { backendPath: "/api/cotizaciones", subject, html });
+
+    // Confirmación personalizada para quien escribió (si dejó un email válido).
+    const contactoEmail = looksLikeEmail(b.contactoEmail);
+    const pila = String(b.contactoNombre || "").trim().split(/\s+/)[0];
+    const paras = [
+      "Gracias por contactarte con <strong>APP Logistics</strong>. Hemos recibido tu mensaje correctamente.",
+    ];
+    if (String(b.servicioInteres || "").trim()) {
+      paras.push(`Registramos tu interés en: <strong>${esc(b.servicioInteres)}</strong>.`);
+    }
+    paras.push(
+      "Uno de nuestros asesores comerciales se pondrá en contacto contigo a la brevedad para ayudarte con tu solicitud."
+    );
+    paras.push("Gracias por confiar en nosotros.<br><strong>Equipo Comercial — APP Logistics</strong>");
+    const confirmation = contactoEmail
+      ? {
+          to: contactoEmail,
+          subject: "Recibimos tu solicitud · APP Logistics",
+          html: confirmationWrap(pila ? `Hola ${esc(pila)},` : "Hola,", paras),
+        }
+      : null;
+
+    await handle(req, res, { backendPath: "/api/cotizaciones", subject, html, confirmation });
   });
 
   // Postulación de empleo
@@ -216,6 +311,28 @@ export function registerLeadRoutes(app: Express) {
       ]) +
       `<p style="margin-top:12px;font-size:12px;color:#9ca3af;">Los archivos adjuntos (CV, documentos) quedan disponibles en el portal cuando la postulación entra a RASTREO.</p>`;
     const html = wrap("Nueva postulación de empleo", inner);
-    await handle(req, res, { backendPath: "/api/candidatos", subject, html });
+
+    // Confirmación personalizada para el postulante (si dejó un email válido).
+    const email = looksLikeEmail(b.email);
+    const primerNombre = String(b.primerNombre || "").trim();
+    const paras = [
+      "Gracias por postularte a <strong>APP Logistics</strong>. Hemos recibido tu hoja de vida correctamente.",
+    ];
+    if (String(b.cargoAspira || "").trim()) {
+      paras.push(`Tu postulación quedó registrada para el cargo de <strong>${esc(b.cargoAspira)}</strong>.`);
+    }
+    paras.push(
+      "Nuestro equipo de selección revisará tu perfil. Si tu experiencia se ajusta a la vacante, nos pondremos en contacto contigo por este medio o por teléfono."
+    );
+    paras.push("Te deseamos mucho éxito en el proceso.<br><strong>Equipo de Selección — APP Logistics</strong>");
+    const confirmation = email
+      ? {
+          to: email,
+          subject: "Recibimos tu postulación · APP Logistics",
+          html: confirmationWrap(primerNombre ? `Hola ${esc(primerNombre)},` : "Hola,", paras),
+        }
+      : null;
+
+    await handle(req, res, { backendPath: "/api/candidatos", subject, html, confirmation });
   });
 }
