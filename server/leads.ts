@@ -15,7 +15,7 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM =
-  process.env.EMAIL_FROM || "APP Logistics <no-reply@app-logistics.com>";
+  process.env.EMAIL_FROM || "APP Logistics <no-reply@applogistics.com.co>";
 
 function notifyEmails(): string[] {
   return (process.env.NOTIFY_EMAIL || "info@applogistics.com.co")
