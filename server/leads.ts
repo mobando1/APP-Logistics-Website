@@ -60,8 +60,16 @@ async function forwardToBackend(
 }
 
 // Correo de respaldo directo vía la API HTTP de Resend (sin SDK, con fetch).
+// Registra el motivo del fallo en consola (visible en los logs de Railway):
+// sin diagnóstico, un correo que no llega es indistinguible de uno que no se
+// intentó enviar.
 async function sendBackupEmail(subject: string, html: string): Promise<boolean> {
-  if (!RESEND_API_KEY) return false; // sin clave, no hay canal de respaldo por correo
+  if (!RESEND_API_KEY) {
+    console.error(
+      "[leads] correo de respaldo OMITIDO: falta RESEND_API_KEY en este servicio (no es la misma variable que la de RASTREO)."
+    );
+    return false; // sin clave, no hay canal de respaldo por correo
+  }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
@@ -80,9 +88,20 @@ async function sendBackupEmail(subject: string, html: string): Promise<boolean> 
       signal: controller.signal,
     });
     clearTimeout(timer);
+    if (!res.ok) {
+      // Causa típica: dominio de EMAIL_FROM no verificado en Resend, o clave
+      // inválida. El cuerpo de la respuesta trae el motivo exacto.
+      const detail = await res.text().catch(() => "");
+      console.error(
+        `[leads] Resend rechazó el correo (HTTP ${res.status}) from="${EMAIL_FROM}" to=${JSON.stringify(
+          notifyEmails()
+        )}: ${detail}`
+      );
+    }
     return res.ok;
-  } catch {
+  } catch (err) {
     clearTimeout(timer);
+    console.error("[leads] error de red/timeout enviando el correo de respaldo:", err);
     return false;
   }
 }
@@ -151,6 +170,9 @@ async function handle(
   if (backendOk || emailOk) {
     return res.status(201).json({ ok: true, backend: backendOk, email: emailOk });
   }
+  console.error(
+    `[leads] LEAD PERDIDO: fallaron AMBOS canales (RASTREO y correo) para ${opts.backendPath}`
+  );
   return res.status(502).json({ ok: false });
 }
 
