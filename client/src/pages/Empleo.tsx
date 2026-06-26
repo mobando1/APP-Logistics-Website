@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Upload, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, Send, AlertCircle, CheckCircle, Loader2, X } from "lucide-react";
 import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 import { useLocale } from "@client/lib/LocaleContext";
 import { postJson } from "@client/lib/api";
+import { validateFile, MAX_FILE_MB } from "@client/lib/fileValidation";
 
 const identidadGenero = [
   "Masculino",
@@ -22,12 +23,14 @@ function FileUpload({
   label,
   name,
   onChange,
+  onDismissError,
   fileName,
   error,
 }: {
   label: string;
   name: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDismissError: (field: string) => void;
   fileName: string;
   error?: string;
 }) {
@@ -50,13 +53,25 @@ function FileUpload({
         />
       </label>
       {error ? (
-        <p className="flex items-start gap-1.5 text-xs text-red-600 mt-1.5">
-          <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-px" />
-          {error}
-        </p>
+        <div className="flex items-start justify-between gap-2 mt-1.5">
+          <p className="flex items-start gap-1.5 text-xs text-red-600">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-px" />
+            {error}
+          </p>
+          {/* Permite descartar el error y seguir sin este documento (opcional),
+              para que un campo no quede bloqueado sin salida. */}
+          <button
+            type="button"
+            onClick={() => onDismissError(name)}
+            className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground shrink-0"
+          >
+            <X className="h-3 w-3" />
+            Quitar
+          </button>
+        </div>
       ) : (
         <p className="text-xs text-muted-foreground mt-1.5">
-          Tamaño máximo de archivo 10MB
+          Tamaño máximo de archivo {MAX_FILE_MB}MB
         </p>
       )}
     </div>
@@ -97,6 +112,7 @@ export default function EmpleoPage() {
 
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [fileData, setFileData] = useState<Record<string, string>>({});
+  const [fileSizes, setFileSizes] = useState<Record<string, number>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [acepto, setAcepto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -111,21 +127,24 @@ export default function EmpleoPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const MAX_FILE_MB = 10;
-  const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024; // 10MB por archivo
-  // Tipos permitidos: deben coincidir con el atributo accept del input.
-  const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
-
-  // Quita el adjunto y la metadata asociada a un campo (cuando se rechaza o
-  // se cambia por uno inválido) para que el formulario no envíe un archivo
-  // que el usuario cree haber reemplazado.
+  // Quita el adjunto y toda la metadata asociada a un campo (cuando se rechaza o
+  // se cambia por uno inválido) para que el formulario no envíe un archivo que el
+  // usuario cree haber reemplazado.
   const clearFile = (field: string) => {
-    setFileNames((prev) => {
+    const drop = (prev: Record<string, string | number>) => {
       const next = { ...prev };
       delete next[field];
       return next;
-    });
-    setFileData((prev) => {
+    };
+    setFileNames((prev) => drop(prev) as Record<string, string>);
+    setFileData((prev) => drop(prev) as Record<string, string>);
+    setFileSizes((prev) => drop(prev) as Record<string, number>);
+  };
+
+  // Descarta el mensaje de error de un campo (botón "Quitar"). El documento es
+  // opcional, así que el usuario puede seguir sin él en vez de quedar bloqueado.
+  const dismissFileError = (field: string) => {
+    setFileErrors((prev) => {
       const next = { ...prev };
       delete next[field];
       return next;
@@ -138,32 +157,22 @@ export default function EmpleoPage() {
     e.target.value = ""; // permite reintentar con el mismo archivo
     if (!file) return;
 
-    const ext = file.name.split(".").pop()?.toLowerCase() || "";
-    if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      clearFile(field);
-      setFileErrors((prev) => ({
-        ...prev,
-        [field]:
-          "Tipo de archivo no permitido. Sube un PDF, una imagen (JPG/PNG) o un documento Word.",
-      }));
-      return;
-    }
-    if (file.size > MAX_FILE_BYTES) {
-      clearFile(field);
-      setFileErrors((prev) => ({
-        ...prev,
-        [field]: `El archivo supera el tamaño máximo de ${MAX_FILE_MB}MB. Comprime el documento o sube uno más liviano.`,
-      }));
+    // Suma de los OTROS documentos ya adjuntos, para el tope de tamaño total.
+    const otherBytes = Object.entries(fileSizes)
+      .filter(([k]) => k !== field)
+      .reduce((sum, [, v]) => sum + v, 0);
+
+    const check = validateFile(file, otherBytes);
+    if (!check.ok) {
+      clearFile(field); // no dejar adjuntado un archivo inválido
+      setFileErrors((prev) => ({ ...prev, [field]: check.error }));
       return;
     }
 
     // Archivo válido: limpia cualquier error previo de este campo y adjunta.
-    setFileErrors((prev) => {
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
+    dismissFileError(field);
     setFileNames((prev) => ({ ...prev, [field]: file.name }));
+    setFileSizes((prev) => ({ ...prev, [field]: file.size }));
     const reader = new FileReader();
     reader.onloadend = () => {
       // Resultado en base64 (data URL) que viaja dentro del JSON al backend.
@@ -498,6 +507,7 @@ export default function EmpleoPage() {
                   label="DNI / NIE / TIE"
                   name="dniNieTie"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.dniNieTie || ""}
                   error={fileErrors.dniNieTie}
                 />
@@ -505,6 +515,7 @@ export default function EmpleoPage() {
                   label="Pasaporte"
                   name="pasaporte"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.pasaporte || ""}
                   error={fileErrors.pasaporte}
                 />
@@ -514,6 +525,7 @@ export default function EmpleoPage() {
                   label="CV Actualizado"
                   name="cvActualizado"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.cvActualizado || ""}
                   error={fileErrors.cvActualizado}
                 />
@@ -521,6 +533,7 @@ export default function EmpleoPage() {
                   label="Autorización Permiso de Trabajo"
                   name="autorizacionTrabajo"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.autorizacionTrabajo || ""}
                   error={fileErrors.autorizacionTrabajo}
                 />
@@ -533,6 +546,7 @@ export default function EmpleoPage() {
                   label="Documento de Identidad"
                   name="documentoIdentidad"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.documentoIdentidad || ""}
                   error={fileErrors.documentoIdentidad}
                 />
@@ -540,6 +554,7 @@ export default function EmpleoPage() {
                   label="Hoja de Vida"
                   name="hojaVida"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.hojaVida || ""}
                   error={fileErrors.hojaVida}
                 />
@@ -549,6 +564,7 @@ export default function EmpleoPage() {
                   label="Medidas Correctivas"
                   name="medidasCorrectivas"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.medidasCorrectivas || ""}
                   error={fileErrors.medidasCorrectivas}
                 />
@@ -556,6 +572,7 @@ export default function EmpleoPage() {
                   label="Antecedentes Policía Nacional"
                   name="antecedentes"
                   onChange={handleFileChange}
+                  onDismissError={dismissFileError}
                   fileName={fileNames.antecedentes || ""}
                   error={fileErrors.antecedentes}
                 />
