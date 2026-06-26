@@ -10,6 +10,14 @@
 // usuario si fallan AMBOS canales.
 
 import type { Express, Request, Response } from "express";
+import {
+  ALLOWED_MIME_TYPES,
+  FILE_URL_FIELDS,
+  MAX_FILE_BYTES,
+  MAX_FILE_MB,
+  MAX_TOTAL_BYTES,
+  MAX_TOTAL_MB,
+} from "../shared/fileLimits";
 
 const BACKEND_URL = "https://app-server-production-65d5.up.railway.app";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
@@ -240,6 +248,43 @@ function tooMany(ip: string): boolean {
   return recent.length > LIMIT;
 }
 
+// Tamaño en bytes que representa una cadena base64 (sin el prefijo data URL).
+function base64Bytes(b64: string): number {
+  const len = b64.length;
+  if (len === 0) return 0;
+  const padding = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
+  return Math.floor((len * 3) / 4) - padding;
+}
+
+// Defensa en profundidad: valida los adjuntos del payload ANTES de reenviarlos a
+// RASTREO. La validación del navegador puede saltarse (peticiones directas a la
+// API), por eso el servidor vuelve a comprobar tipo y tamaño. Solo inspecciona
+// data URLs base64 (lo que envía el formulario); cualquier otro valor se ignora
+// para no romper integraciones que manden URLs reales. Devuelve un mensaje de
+// error o null si todo está correcto.
+function validateCandidatoFiles(body: Record<string, unknown>): string | null {
+  let total = 0;
+  for (const field of FILE_URL_FIELDS) {
+    const value = body[field];
+    if (typeof value !== "string" || !value.startsWith("data:")) continue;
+    const match = /^data:([^;,]*)(;base64)?,/.exec(value);
+    if (!match || !match[2]) continue; // no es base64 inline → no se valida
+    const mime = (match[1] || "").toLowerCase();
+    if (!ALLOWED_MIME_TYPES.includes(mime)) {
+      return "Uno de los documentos tiene un tipo de archivo no permitido.";
+    }
+    const bytes = base64Bytes(value.slice(value.indexOf(",") + 1));
+    if (bytes > MAX_FILE_BYTES) {
+      return `Uno de los documentos supera el tamaño máximo de ${MAX_FILE_MB}MB.`;
+    }
+    total += bytes;
+  }
+  if (total > MAX_TOTAL_BYTES) {
+    return `El tamaño total de los documentos supera el máximo de ${MAX_TOTAL_MB}MB.`;
+  }
+  return null;
+}
+
 async function handle(
   req: Request,
   res: Response,
@@ -341,6 +386,14 @@ export function registerLeadRoutes(app: Express) {
   // Postulación de empleo
   app.post("/api/lead/candidato", async (req, res) => {
     const b = req.body ?? {};
+
+    // Defensa en profundidad: rechaza adjuntos de tipo/tamaño inválido antes de
+    // procesar o reenviar (la validación del navegador puede saltarse).
+    const fileError = validateCandidatoFiles(b);
+    if (fileError) {
+      return res.status(400).json({ ok: false, message: fileError });
+    }
+
     const nombre = [b.primerNombre, b.segundoNombre, b.primerApellido, b.segundoApellido]
       .filter(Boolean)
       .join(" ");

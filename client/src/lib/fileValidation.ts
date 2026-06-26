@@ -4,21 +4,25 @@
 // automáticos: así un cambio accidental en el límite o en los tipos permitidos
 // queda detectado antes de llegar a producción. El componente (Empleo.tsx) solo
 // llama a validateFile() y pinta el error que devuelve.
+//
+// Los límites y tipos vienen de @shared/fileLimits para que cliente y servidor
+// validen exactamente con los mismos valores (una sola fuente de verdad).
 
-// Límite por archivo. Holgado para una foto/escáner de un documento.
-export const MAX_FILE_MB = 10;
-export const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+import {
+  MAX_FILE_MB,
+  MAX_FILE_BYTES,
+  MAX_TOTAL_MB,
+  MAX_TOTAL_BYTES,
+  ALLOWED_EXTENSIONS,
+} from "@shared/fileLimits";
 
-// Límite del tamaño TOTAL de todos los adjuntos juntos. El backend acepta hasta
-// ~50MB de payload y base64 infla los binarios ~33% (4/3), así que el tope real
-// de bytes "crudos" que cabe es ~36MB. Dejamos 35MB para tener margen con el
-// resto del JSON y evitar un fallo silencioso (413) cuando alguien sube varios
-// documentos grandes a la vez.
-export const MAX_TOTAL_MB = 35;
-export const MAX_TOTAL_BYTES = MAX_TOTAL_MB * 1024 * 1024;
-
-// Tipos permitidos. DEBEN coincidir con el atributo accept del input de archivo.
-export const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
+export {
+  MAX_FILE_MB,
+  MAX_FILE_BYTES,
+  MAX_TOTAL_MB,
+  MAX_TOTAL_BYTES,
+  ALLOWED_EXTENSIONS,
+};
 
 export type FileLike = { name: string; size: number };
 

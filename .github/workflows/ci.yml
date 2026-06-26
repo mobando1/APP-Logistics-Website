@@ -1,0 +1,33 @@
+name: CI
+
+# Corre en cada push a main y en cada Pull Request. Si algo no pasa (tipos,
+# tests o build), el check sale en rojo: así un error como el de la validación
+# de archivos no vuelve a llegar a producción sin que nadie se entere.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Chequeo de tipos
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
+
+      - name: Build de producción
+        run: npm run build
