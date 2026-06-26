@@ -1,16 +1,13 @@
 // Doble canal para los formularios públicos ("nunca perder un lead").
 //
-// Cada formulario llega a ESTE servidor (mismo origen → sin CORS) y sale por DOS
-// vías independientes, en paralelo:
-//   1) Se reenvía al backend RASTREO → base de datos + portal (fuente de verdad).
-//   2) Se envía un correo de respaldo directo vía la API HTTP de Resend.
-// Basta con que UNA funcione para no perder el lead: si RASTREO está caído, el
-// equipo igual recibe el correo; si el correo falla, RASTREO ya lo guardó. Solo
-// se responde error al usuario si fallan AMBAS.
-//
-// Además, como cortesía, se envía un correo de CONFIRMACIÓN personalizado a la
-// persona que llenó el formulario (postulante o contacto). Es best-effort: corre
-// en paralelo y nunca afecta si el lead se guardó o no.
+// Cada formulario llega a ESTE servidor (mismo origen → sin CORS) y se procesa así:
+//   1) Canal primario: se reenvía al backend RASTREO → base de datos + portal.
+//      RASTREO envía SUS PROPIOS correos (aviso al equipo + confirmación a la persona).
+//   2) Red de seguridad: SOLO si el reenvío a RASTREO falla, este servidor manda
+//      los correos (aviso al equipo + confirmación a la persona) vía Resend.
+// Así el lead nunca se pierde (si RASTREO está caído, el respaldo cubre) y NO se
+// duplican los correos cuando RASTREO está sano. Solo se responde error al
+// usuario si fallan AMBOS canales.
 
 import type { Express, Request, Response } from "express";
 
@@ -42,7 +39,7 @@ async function forwardToBackend(
   for (let attempt = 0; attempt <= delays.length; attempt++) {
     if (attempt > 0) await wait(delays[attempt - 1]);
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
       const res = await fetch(`${BACKEND_URL}${path}`, {
         method: "POST",
@@ -215,8 +212,9 @@ async function handle(
     backendPath: string;
     subject: string;
     html: string;
-    // Confirmación opcional para la persona que llenó el formulario. Es
-    // "best-effort": corre en paralelo y NO decide si el lead se guardó.
+    // Confirmación opcional para la persona que llenó el formulario. Solo se
+    // envía como respaldo si RASTREO no recibió el lead (cuando RASTREO está
+    // sano, es él quien manda la confirmación).
     confirmation?: { to: string; subject: string; html: string } | null;
   }
 ) {
@@ -226,20 +224,29 @@ async function handle(
       .status(429)
       .json({ ok: false, message: "Demasiados envíos. Intenta más tarde." });
   }
-  // Canales en paralelo. No perdemos el lead si AL MENOS uno de los dos
-  // primeros (RASTREO / aviso interno) funciona. La confirmación al usuario es
-  // un extra y no afecta la respuesta.
-  const [backendOk, emailOk] = await Promise.all([
-    forwardToBackend(opts.backendPath, req.body, clientIp),
-    sendBackupEmail(opts.subject, opts.html),
-    opts.confirmation
-      ? sendConfirmationEmail(
-          opts.confirmation.to,
-          opts.confirmation.subject,
-          opts.confirmation.html
-        )
-      : Promise.resolve(false),
-  ]);
+  // Canal primario: RASTREO. Guarda en BD/portal y envía SUS PROPIOS correos
+  // (aviso al equipo + confirmación a la persona).
+  const backendOk = await forwardToBackend(opts.backendPath, req.body, clientIp);
+
+  // Red de seguridad: SOLO si RASTREO no recibió el lead, este servidor manda los
+  // correos (aviso al equipo + confirmación a la persona). Así no se duplican los
+  // correos cuando RASTREO está sano, pero ni el lead ni los avisos se pierden si
+  // RASTREO está caído.
+  let emailOk = false;
+  if (!backendOk) {
+    const [notifOk] = await Promise.all([
+      sendBackupEmail(opts.subject, opts.html),
+      opts.confirmation
+        ? sendConfirmationEmail(
+            opts.confirmation.to,
+            opts.confirmation.subject,
+            opts.confirmation.html
+          )
+        : Promise.resolve(false),
+    ]);
+    emailOk = notifOk;
+  }
+
   if (backendOk || emailOk) {
     return res.status(201).json({ ok: true, backend: backendOk, email: emailOk });
   }
