@@ -141,27 +141,83 @@ function esc(v: unknown): string {
     .replace(/"/g, "&quot;");
 }
 
-function renderRows(fields: Array<[string, unknown]>): string {
+// ---------------------------------------------------------------------------
+// Plantillas con la marca de APP Logistics. Mismo diseño que RASTREO (el canal
+// principal) para que el correo se vea idéntico salga por donde salga: header
+// navy con logo blanco, franja naranja, tarjeta blanca y pie con contacto real.
+// Estos correos son el RESPALDO (solo se envían si RASTREO está caído), así que
+// los avisos al equipo NO llevan botón "Ver en el portal" (aún no está en el
+// portal) pero sí cargan todos los datos del lead.
+// ---------------------------------------------------------------------------
+
+const BRAND = {
+  navy: "#1B396A",
+  orange: "#F97316",
+  logo: "https://www.app-logistics.com/logo-app-blanco.png",
+  site: "https://www.app-logistics.com",
+  phoneDisplay: "(57) 315 340 25 45",
+  phoneTel: "+573153402545",
+};
+
+// Envuelve el contenido en la tarjeta con marca (header + franja + cuerpo + pie).
+// `footerHtml` es la línea opcional de teléfono/correo del pie (HTML ya armado).
+function shell(content: string, footerHtml = ""): string {
+  return (
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:24px 12px;"><tr><td align="center">` +
+    `<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;">` +
+    `<tr><td style="background:${BRAND.navy};padding:28px 32px;text-align:center;"><img src="${BRAND.logo}" alt="APP Logistics" height="34" style="height:34px;display:inline-block;border:0;"></td></tr>` +
+    `<tr><td style="height:4px;background:${BRAND.orange};font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="padding:32px;">${content}</td></tr>` +
+    `<tr><td style="background:#f8fafc;border-top:1px solid #e5e7eb;padding:24px 32px;">` +
+    `<p style="margin:0 0 6px;color:${BRAND.navy};font-size:14px;font-weight:700;">APP Logistics SAS</p>` +
+    `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.7;">Soluciones logísticas integrales · Colombia<br>${footerHtml}<a href="${BRAND.site}" style="color:${BRAND.orange};text-decoration:none;font-weight:600;">www.app-logistics.com</a></p>` +
+    `</td></tr>` +
+    `</table>` +
+    `<p style="margin:16px 0 0;color:#9aa4b2;font-size:11px;">© APP Logistics SAS · Este es un mensaje automático.</p>` +
+    `</td></tr></table>`
+  );
+}
+
+// Línea de contacto del pie (teléfono + correo) para los correos de confirmación.
+function footerContactLine(email: string): string {
+  return (
+    `<a href="tel:${BRAND.phoneTel}" style="color:#6b7280;text-decoration:none;">${BRAND.phoneDisplay}</a> · ` +
+    `<a href="mailto:${esc(email)}" style="color:#6b7280;text-decoration:none;">${esc(email)}</a><br>`
+  );
+}
+
+// Título navy grande (igual en confirmaciones y avisos internos).
+function heading(text: string): string {
+  return `<h1 style="margin:0 0 16px;color:${BRAND.navy};font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:21px;line-height:1.3;font-weight:800;">${text}</h1>`;
+}
+
+// Párrafo del cuerpo. `last` quita el margen inferior (para el último párrafo).
+function para(html: string, last = false): string {
+  return `<p style="margin:${last ? "0" : "0 0 16px"};color:#1f2937;font-size:15px;line-height:1.65;">${html}</p>`;
+}
+
+// Línea introductoria de un aviso interno (un poco más pegada a la tabla de datos).
+function intro(html: string): string {
+  return `<p style="margin:0 0 8px;color:#1f2937;font-size:15px;line-height:1.65;">${html}</p>`;
+}
+
+// Texto pequeño en gris (nota de adjuntos / avisos). Mismo estilo que RASTREO.
+function fineprint(html: string): string {
+  return `<p style="margin:8px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">${html}</p>`;
+}
+
+// Tabla de datos (etiqueta gris + valor) para los avisos internos.
+function dataRows(fields: Array<[string, unknown]>): string {
   const rows = fields
     .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "")
     .map(
       ([label, v]) =>
-        `<tr><td style="padding:4px 16px 4px 0;color:#6b7280;vertical-align:top;">${esc(
+        `<tr><td style="padding:8px 16px 8px 0;color:#6b7280;font-size:13px;white-space:nowrap;vertical-align:top;">${esc(
           label
-        )}</td><td style="padding:4px 0;font-weight:600;">${esc(v)}</td></tr>`
+        )}</td><td style="padding:8px 0;color:#1f2937;font-size:14px;font-weight:600;border-bottom:1px solid #e5e7eb;">${esc(v)}</td></tr>`
     )
     .join("");
-  return `<table style="border-collapse:collapse;font-size:14px;line-height:1.5;">${rows}</table>`;
-}
-
-function wrap(title: string, inner: string): string {
-  return (
-    `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1f2937;">` +
-    `<h2 style="margin:0 0 4px;">${esc(title)}</h2>` +
-    `<p style="margin:0 0 16px;color:#6b7280;font-size:13px;">Recibido desde el formulario del sitio web.</p>` +
-    inner +
-    `</div>`
-  );
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 4px;">${rows}</table>`;
 }
 
 // Devuelve el email saneado si parece válido, o null. Evita pedirle a Resend que
@@ -169,27 +225,6 @@ function wrap(title: string, inner: string): string {
 function looksLikeEmail(v: unknown): string | null {
   const s = String(v ?? "").trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) ? s : null;
-}
-
-// Plantilla con marca para el correo de confirmación que recibe la persona.
-// `greeting` y los `paragraphs` ya vienen con el texto del usuario escapado; los
-// párrafos pueden traer <strong>/<br> que ponemos nosotros, no el usuario.
-function confirmationWrap(greeting: string, paragraphs: string[]): string {
-  const body = paragraphs
-    .map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;">${p}</p>`)
-    .join("");
-  return (
-    `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;color:#1f2937;">` +
-    `<div style="background:#0f172a;padding:20px 24px;border-radius:8px 8px 0 0;">` +
-    `<span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.5px;">APP&nbsp;Logistics</span>` +
-    `</div>` +
-    `<div style="padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;">` +
-    `<p style="margin:0 0 16px;font-size:16px;font-weight:600;">${greeting}</p>` +
-    body +
-    `<p style="margin:20px 0 0;font-size:12px;color:#9ca3af;">Este es un mensaje automático de confirmación enviado desde el sitio web de APP Logistics.</p>` +
-    `</div>` +
-    `</div>`
-  );
 }
 
 // Limitador simple en memoria para proteger el canal de correo de abusos.
@@ -261,36 +296,42 @@ export function registerLeadRoutes(app: Express) {
   app.post("/api/lead/cotizacion", async (req, res) => {
     const b = req.body ?? {};
     const subject = `Nuevo contacto · ${b.nombreEmpresa || b.contactoNombre || "web"}`;
-    const html = wrap(
-      "Nueva solicitud de contacto / cotización",
-      renderRows([
-        ["Empresa", b.nombreEmpresa],
-        ["Contacto", b.contactoNombre],
-        ["Email", b.contactoEmail],
-        ["Teléfono", b.contactoTelefono],
-        ["Servicio de interés", b.servicioInteres],
-        ["Mensaje", b.mensaje],
-      ])
+    const empresa = String(b.nombreEmpresa || "").trim();
+    const html = shell(
+      heading("Nueva solicitud de contacto") +
+        intro(
+          empresa
+            ? `<strong>${esc(empresa)}</strong> solicitó información.`
+            : "Nueva solicitud recibida desde el formulario web."
+        ) +
+        dataRows([
+          ["Contacto", b.contactoNombre],
+          ["Email", b.contactoEmail],
+          ["Teléfono", b.contactoTelefono],
+          ["Servicio", b.servicioInteres],
+          ["Mensaje", b.mensaje],
+        ])
     );
 
     // Confirmación personalizada para quien escribió (si dejó un email válido).
+    // Mismo texto y diseño que la confirmación principal de RASTREO.
     const contactoEmail = looksLikeEmail(b.contactoEmail);
-    const pila = String(b.contactoNombre || "").trim().split(/\s+/)[0];
-    const paras = [
-      "Gracias por contactarte con <strong>APP Logistics</strong>. Hemos recibido tu mensaje correctamente.",
-    ];
-    if (String(b.servicioInteres || "").trim()) {
-      paras.push(`Registramos tu interés en: <strong>${esc(b.servicioInteres)}</strong>.`);
-    }
-    paras.push(
-      "Uno de nuestros asesores comerciales se pondrá en contacto contigo a la brevedad para ayudarte con tu solicitud."
-    );
-    paras.push("Gracias por confiar en nosotros.<br><strong>Equipo Comercial — APP Logistics</strong>");
+    const nombre = String(b.contactoNombre || b.nombreEmpresa || "").trim();
     const confirmation = contactoEmail
       ? {
           to: contactoEmail,
-          subject: "Recibimos tu solicitud · APP Logistics",
-          html: confirmationWrap(pila ? `Hola ${esc(pila)},` : "Hola,", paras),
+          subject: "Gracias por contactarnos · APP Logistics",
+          html: shell(
+            heading(`¡Gracias por contactarnos${nombre ? `, ${esc(nombre)}` : ""}!`) +
+              para(
+                "Hemos recibido tu solicitud en <strong>APP Logistics</strong> y agradecemos tu interés en nuestros servicios."
+              ) +
+              para(
+                "Uno de nuestros asesores se pondrá en contacto contigo muy pronto para brindarte la información que necesitas."
+              ) +
+              para("Quedamos atentos.", true),
+            footerContactLine("info@applogistics.com.co")
+          ),
         }
       : null;
 
@@ -304,39 +345,47 @@ export function registerLeadRoutes(app: Express) {
       .filter(Boolean)
       .join(" ");
     const subject = `Nueva postulación · ${nombre || b.numeroDocumento || "web"}`;
-    const inner =
-      renderRows([
-        ["Nombre", nombre],
-        ["Documento", [b.tipoDocumento, b.numeroDocumento].filter(Boolean).join(" ")],
-        ["Cargo al que aspira", b.cargoAspira],
-        ["Ciudad", b.ciudad],
-        ["Celular", b.celular],
-        ["Email", b.email],
-        ["Nacionalidad", b.nacionalidad],
-        ["Fecha disponible", b.fechaDisponible],
-        ["Comentarios", b.comentarios],
-      ]) +
-      `<p style="margin-top:12px;font-size:12px;color:#9ca3af;">Los archivos adjuntos (CV, documentos) quedan disponibles en el portal cuando la postulación entra a RASTREO.</p>`;
-    const html = wrap("Nueva postulación de empleo", inner);
+    const html = shell(
+      heading("Nueva postulación de empleo") +
+        intro(
+          nombre
+            ? `<strong>${esc(nombre)}</strong> envió su hoja de vida.`
+            : "Nueva postulación recibida desde el formulario web."
+        ) +
+        dataRows([
+          ["Documento", [b.tipoDocumento, b.numeroDocumento].filter(Boolean).join(" ")],
+          ["Cargo", b.cargoAspira],
+          ["Ciudad", b.ciudad],
+          ["Celular", b.celular],
+          ["Email", b.email],
+          ["Nacionalidad", b.nacionalidad],
+          ["Fecha disponible", b.fechaDisponible],
+          ["Comentarios", b.comentarios],
+        ]) +
+        fineprint(
+          "Los archivos adjuntos (CV, documentos) quedan disponibles en el portal cuando la postulación entra a RASTREO."
+        )
+    );
 
     // Confirmación personalizada para el postulante (si dejó un email válido).
+    // Mismo texto y diseño que la confirmación principal de RASTREO.
     const email = looksLikeEmail(b.email);
     const primerNombre = String(b.primerNombre || "").trim();
-    const paras = [
-      "Gracias por postularte a <strong>APP Logistics</strong>. Hemos recibido tu hoja de vida correctamente.",
-    ];
-    if (String(b.cargoAspira || "").trim()) {
-      paras.push(`Tu postulación quedó registrada para el cargo de <strong>${esc(b.cargoAspira)}</strong>.`);
-    }
-    paras.push(
-      "Nuestro equipo de selección revisará tu perfil. Si tu experiencia se ajusta a la vacante, nos pondremos en contacto contigo por este medio o por teléfono."
-    );
-    paras.push("Te deseamos mucho éxito en el proceso.<br><strong>Equipo de Selección — APP Logistics</strong>");
     const confirmation = email
       ? {
           to: email,
           subject: "Recibimos tu postulación · APP Logistics",
-          html: confirmationWrap(primerNombre ? `Hola ${esc(primerNombre)},` : "Hola,", paras),
+          html: shell(
+            heading(`¡Gracias por tu interés${primerNombre ? `, ${esc(primerNombre)}` : ""}!`) +
+              para(
+                "Hemos recibido tu postulación en <strong>APP Logistics</strong> y tu hoja de vida ya hace parte de nuestro proceso de selección."
+              ) +
+              para(
+                "Nuestro equipo de selección la revisará con atención. Si tu perfil se ajusta a la vacante, nos pondremos en contacto contigo muy pronto."
+              ) +
+              para("Gracias por querer ser parte de nuestro equipo.", true),
+            footerContactLine("seleccion@applogistics.com.co")
+          ),
         }
       : null;
 
