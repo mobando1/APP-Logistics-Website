@@ -23,16 +23,22 @@ function FileUpload({
   name,
   onChange,
   fileName,
+  error,
 }: {
   label: string;
   name: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileName: string;
+  error?: string;
 }) {
   return (
     <div>
       <p className="text-sm font-medium text-foreground mb-2">{label}</p>
-      <label className="flex items-center justify-center gap-2 bg-accent/90 hover:bg-accent text-white px-5 py-3 rounded-xl cursor-pointer transition-colors text-sm font-medium">
+      <label
+        className={`flex items-center justify-center gap-2 bg-accent/90 hover:bg-accent text-white px-5 py-3 rounded-xl cursor-pointer transition-colors text-sm font-medium ${
+          error ? "ring-2 ring-red-400" : ""
+        }`}
+      >
         <Upload className="h-4 w-4" />
         {fileName || "Cargar archivo"}
         <input
@@ -43,9 +49,16 @@ function FileUpload({
           className="hidden"
         />
       </label>
-      <p className="text-xs text-muted-foreground mt-1.5">
-        Tamaño máximo de archivo 2MB
-      </p>
+      {error ? (
+        <p className="flex items-start gap-1.5 text-xs text-red-600 mt-1.5">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-px" />
+          {error}
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground mt-1.5">
+          Tamaño máximo de archivo 10MB
+        </p>
+      )}
     </div>
   );
 }
@@ -84,6 +97,7 @@ export default function EmpleoPage() {
 
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [fileData, setFileData] = useState<Record<string, string>>({});
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [acepto, setAcepto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -97,21 +111,62 @@ export default function EmpleoPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const MAX_FILE_BYTES = 2 * 1024 * 1024; // 2MB por archivo
+  const MAX_FILE_MB = 10;
+  const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024; // 10MB por archivo
+  // Tipos permitidos: deben coincidir con el atributo accept del input.
+  const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
+
+  // Quita el adjunto y la metadata asociada a un campo (cuando se rechaza o
+  // se cambia por uno inválido) para que el formulario no envíe un archivo
+  // que el usuario cree haber reemplazado.
+  const clearFile = (field: string) => {
+    setFileNames((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+    setFileData((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const field = e.target.name;
     const file = e.target.files?.[0];
+    e.target.value = ""; // permite reintentar con el mismo archivo
     if (!file) return;
-    if (file.size > MAX_FILE_BYTES) {
-      setError(`El archivo "${file.name}" supera el tamaño máximo de 2MB.`);
-      e.target.value = ""; // permite reintentar con el mismo archivo
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      clearFile(field);
+      setFileErrors((prev) => ({
+        ...prev,
+        [field]:
+          "Tipo de archivo no permitido. Sube un PDF, una imagen (JPG/PNG) o un documento Word.",
+      }));
       return;
     }
-    setError("");
-    setFileNames({ ...fileNames, [field]: file.name });
+    if (file.size > MAX_FILE_BYTES) {
+      clearFile(field);
+      setFileErrors((prev) => ({
+        ...prev,
+        [field]: `El archivo supera el tamaño máximo de ${MAX_FILE_MB}MB. Comprime el documento o sube uno más liviano.`,
+      }));
+      return;
+    }
+
+    // Archivo válido: limpia cualquier error previo de este campo y adjunta.
+    setFileErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+    setFileNames((prev) => ({ ...prev, [field]: file.name }));
     const reader = new FileReader();
     reader.onloadend = () => {
+      // Resultado en base64 (data URL) que viaja dentro del JSON al backend.
       setFileData((prev) => ({ ...prev, [field]: reader.result as string }));
     };
     reader.readAsDataURL(file);
@@ -119,6 +174,16 @@ export default function EmpleoPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // No enviar si algún campo de archivo tiene un error pendiente (tamaño o
+    // tipo no permitido): así el usuario corrige antes de continuar.
+    if (Object.keys(fileErrors).length > 0) {
+      setError(
+        "Revisa los documentos marcados en rojo: hay archivos que no se pudieron adjuntar."
+      );
+      return;
+    }
+
     setSubmitting(true);
     setError("");
 
@@ -434,12 +499,14 @@ export default function EmpleoPage() {
                   name="dniNieTie"
                   onChange={handleFileChange}
                   fileName={fileNames.dniNieTie || ""}
+                  error={fileErrors.dniNieTie}
                 />
                 <FileUpload
                   label="Pasaporte"
                   name="pasaporte"
                   onChange={handleFileChange}
                   fileName={fileNames.pasaporte || ""}
+                  error={fileErrors.pasaporte}
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-5">
@@ -448,12 +515,14 @@ export default function EmpleoPage() {
                   name="cvActualizado"
                   onChange={handleFileChange}
                   fileName={fileNames.cvActualizado || ""}
+                  error={fileErrors.cvActualizado}
                 />
                 <FileUpload
                   label="Autorización Permiso de Trabajo"
                   name="autorizacionTrabajo"
                   onChange={handleFileChange}
                   fileName={fileNames.autorizacionTrabajo || ""}
+                  error={fileErrors.autorizacionTrabajo}
                 />
               </div>
             </>
@@ -465,12 +534,14 @@ export default function EmpleoPage() {
                   name="documentoIdentidad"
                   onChange={handleFileChange}
                   fileName={fileNames.documentoIdentidad || ""}
+                  error={fileErrors.documentoIdentidad}
                 />
                 <FileUpload
                   label="Hoja de Vida"
                   name="hojaVida"
                   onChange={handleFileChange}
                   fileName={fileNames.hojaVida || ""}
+                  error={fileErrors.hojaVida}
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-5">
@@ -479,12 +550,14 @@ export default function EmpleoPage() {
                   name="medidasCorrectivas"
                   onChange={handleFileChange}
                   fileName={fileNames.medidasCorrectivas || ""}
+                  error={fileErrors.medidasCorrectivas}
                 />
                 <FileUpload
                   label="Antecedentes Policía Nacional"
                   name="antecedentes"
                   onChange={handleFileChange}
                   fileName={fileNames.antecedentes || ""}
+                  error={fileErrors.antecedentes}
                 />
               </div>
             </>

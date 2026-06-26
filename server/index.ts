@@ -37,8 +37,9 @@ async function start() {
   const app = express();
   // Necesario para leer la IP real del cliente tras un proxy/CDN (X-Forwarded-For).
   app.set("trust proxy", true);
-  // Límite amplio: las postulaciones traen hasta 4 documentos en base64.
-  app.use(express.json({ limit: "20mb" }));
+  // Límite amplio: las postulaciones traen hasta 4 documentos en base64
+  // (hasta 10MB c/u; base64 infla ~33%, así que 50mb cubre el caso completo).
+  app.use(express.json({ limit: "50mb" }));
   app.use(cookieParser());
 
   app.get("/api/health", (_req, res) => {
