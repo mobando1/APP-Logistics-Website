@@ -336,7 +336,45 @@ async function handle(
   return res.status(502).json({ ok: false });
 }
 
+// Caché en memoria de la lista de cargos por país. El formulario de empleo la
+// consume en cada carga; cachear ~3 min evita golpear a RASTREO en cada visita.
+// Un cargo nuevo creado en el CRM aparece en cuanto vence esta copia.
+const CARGOS_CACHE_MS = 3 * 60 * 1000;
+const cargosCache = new Map<string, { at: number; data: unknown }>();
+
+async function fetchCargos(pais: string): Promise<unknown> {
+  const cached = cargosCache.get(pais);
+  if (cached && Date.now() - cached.at < CARGOS_CACHE_MS) return cached.data;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const qs = pais ? `?pais=${encodeURIComponent(pais)}` : "";
+    const res = await fetch(`${BACKEND_URL}/api/cargos/publicos${qs}`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`RASTREO respondió ${res.status}`);
+    const data = await res.json();
+    cargosCache.set(pais, { at: Date.now(), data });
+    return data;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export function registerLeadRoutes(app: Express) {
+  // Lista de cargos para el formulario de empleo. Fuente de verdad: el módulo de
+  // Cargos del CRM (RASTREO). Si RASTREO falla, devuelve [] y el formulario cae a
+  // su lista fija de content (co.ts / es.ts).
+  app.get("/api/lead/cargos", async (req, res) => {
+    const pais = typeof req.query.pais === "string" ? req.query.pais.trim().toUpperCase() : "";
+    try {
+      res.json(await fetchCargos(pais));
+    } catch {
+      res.json([]);
+    }
+  });
+
   // Contacto / cotización
   app.post("/api/lead/cotizacion", async (req, res) => {
     const b = req.body ?? {};

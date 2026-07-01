@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Send, AlertCircle, CheckCircle, Loader2, X } from "lucide-react";
 import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 import { useLocale } from "@client/lib/LocaleContext";
@@ -118,6 +118,30 @@ export default function EmpleoPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+
+  // Lista de cargos: fuente de verdad = módulo de Cargos del CRM (RASTREO), que
+  // alimenta un cargo nuevo al formulario sin tocar código. Se pide al arrancar;
+  // si falla o llega vacía, se usa la lista fija de content (co.ts / es.ts).
+  const [cargosRemotos, setCargosRemotos] = useState<string[] | null>(null);
+  const cargoOptions = cargosRemotos && cargosRemotos.length > 0 ? cargosRemotos : cargos;
+
+  useEffect(() => {
+    let cancelado = false;
+    const pais = isEs ? "ES" : "CO";
+    fetch(`/api/lead/cargos?pais=${pais}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Array<{ nombre?: string }>) => {
+        if (cancelado || !Array.isArray(data)) return;
+        const nombres = data.map((c) => c?.nombre).filter((n): n is string => Boolean(n));
+        setCargosRemotos(nombres);
+      })
+      .catch(() => {
+        /* se mantiene el fallback de content */
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [isEs]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -471,7 +495,7 @@ export default function EmpleoPage() {
                 className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all bg-white"
               >
                 <option value="">Cargo al que aspira</option>
-                {cargos.map((c) => (
+                {cargoOptions.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
