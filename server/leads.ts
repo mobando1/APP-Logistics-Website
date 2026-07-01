@@ -337,9 +337,10 @@ async function handle(
 }
 
 // Caché en memoria de la lista de cargos por país. El formulario de empleo la
-// consume en cada carga; cachear ~3 min evita golpear a RASTREO en cada visita.
-// Un cargo nuevo creado en el CRM aparece en cuanto vence esta copia.
-const CARGOS_CACHE_MS = 3 * 60 * 1000;
+// consume en cada carga; cachear unos segundos evita golpear a RASTREO en ráfagas
+// (varias cargas seguidas, doble render de React) sin retrasar los cambios.
+// TTL corto (30 s): un cargo creado/eliminado en el CRM se refleja casi enseguida.
+const CARGOS_CACHE_MS = 30 * 1000;
 const cargosCache = new Map<string, { at: number; data: unknown }>();
 
 async function fetchCargos(pais: string): Promise<unknown> {
@@ -368,6 +369,10 @@ export function registerLeadRoutes(app: Express) {
   // su lista fija de content (co.ts / es.ts).
   app.get("/api/lead/cargos", async (req, res) => {
     const pais = typeof req.query.pais === "string" ? req.query.pais.trim().toUpperCase() : "";
+    // El navegador/edge debe revalidar seguido para que un cambio en el CRM
+    // (crear/eliminar cargo) se refleje pronto en el formulario, no quedarse con
+    // una copia vieja por el caché heurístico del navegador.
+    res.set("Cache-Control", "public, max-age=30, must-revalidate");
     try {
       res.json(await fetchCargos(pais));
     } catch {
