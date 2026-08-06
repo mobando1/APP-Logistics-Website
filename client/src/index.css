@@ -84,3 +84,39 @@ html {
   mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
+
+/* Impresión: pensado para la Política de Protección de Datos, que se va a
+   pedir como documento. El chrome del sitio lleva print:hidden. */
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  /* Que un título no quede huérfano al final de la página. */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  table,
+  li,
+  dl > div {
+    break-inside: avoid;
+  }
+
+  /* Los enlaces impresos pierden el destino: se muestra al lado. */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+    color: #555;
+  }
+}

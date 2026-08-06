@@ -1,11 +1,15 @@
 import { Link } from "wouter";
 import { MapPin, Phone, Mail, Shield, ArrowUpRight } from "lucide-react";
 import { useLocale } from "@client/lib/LocaleContext";
+import { politicaDatos, POLITICA_DATOS_PATH } from "@client/content/legal";
 
 export default function Footer() {
-  const { content } = useLocale();
+  const { locale, content } = useLocale();
+  // El enlace legal solo se muestra donde hay política publicada (hoy, Colombia).
+  const hasPoliticaDatos = Boolean(politicaDatos[locale]);
+
   return (
-    <footer className="bg-[#0f2440] text-white">
+    <footer className="bg-[#0f2440] text-white print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="lg:col-span-1">
@@ -61,6 +65,14 @@ export default function Footer() {
                 { label: "Servicios", href: "/servicios" },
                 { label: "Contáctenos", href: "/contacto" },
                 { label: "Deja tu Hoja de Vida", href: "/empleo" },
+                ...(hasPoliticaDatos
+                  ? [
+                      {
+                        label: "Política de Protección de Datos",
+                        href: POLITICA_DATOS_PATH,
+                      },
+                    ]
+                  : []),
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -110,11 +122,19 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
           <span className="text-xs text-white/40">
             &copy; {new Date().getFullYear()} {content.companyLegalName}. Todos
             los derechos reservados.
           </span>
+          {hasPoliticaDatos && (
+            <Link
+              href={POLITICA_DATOS_PATH}
+              className="text-xs text-white/40 hover:text-accent transition-colors"
+            >
+              Política de Protección de Datos
+            </Link>
+          )}
         </div>
       </div>
     </footer>

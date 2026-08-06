@@ -7,6 +7,7 @@ import {
   localizedPath,
   setLocalePreference,
 } from "@client/lib/locale-routing";
+import { isCoOnlyPath } from "@shared/coOnlyPaths";
 
 const OPTIONS: { locale: Locale; label: string; iso: string }[] = [
   { locale: "co", label: "Colombia", iso: "co" },
@@ -38,10 +39,15 @@ export default function LocaleSwitcher({
     setOpen(false);
     if (target === locale) return;
     setLocalePreference(target);
+    // La página actual puede no existir en el país destino (la política de
+    // datos solo está publicada en Colombia). En ese caso el servidor rebotaría
+    // de vuelta y parecería que el selector no hace nada: mejor ir al inicio.
     const dest =
-      localizedPath(target, window.location.pathname) +
-      window.location.search +
-      window.location.hash;
+      target === "es" && isCoOnlyPath(window.location.pathname)
+        ? "/es"
+        : localizedPath(target, window.location.pathname) +
+          window.location.search +
+          window.location.hash;
     // Navegación completa: cruza el "base" de wouter y deja que el server
     // y el contexto se reinicialicen con el nuevo locale.
     window.location.assign(dest);

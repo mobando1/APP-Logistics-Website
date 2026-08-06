@@ -3,10 +3,17 @@ import { Link } from "wouter";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
 import { useLocale } from "@client/lib/LocaleContext";
 import { postJson } from "@client/lib/api";
+import AutorizacionDatosCheck, {
+  useAutorizacionDatos,
+} from "@client/components/forms/AutorizacionDatosCheck";
 
 export default function ContactoPage() {
   const { content } = useLocale();
   const sectores = content.forms.sectores;
+  // Autorización de tratamiento de datos: obligatoria donde exista política
+  // publicada (Colombia). Si el país no la define, el check no se muestra.
+  const autorizacion = useAutorizacionDatos();
+  const [aceptoDatos, setAceptoDatos] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -34,6 +41,14 @@ export default function ContactoPage() {
         contactoTelefono: formData.telefono,
         servicioInteres: formData.asunto || formData.sector,
         mensaje: formData.mensaje,
+        // Prueba de la autorización (la política exige conservarla, num. 8 y 15).
+        ...(autorizacion
+          ? {
+              autorizacionDatos: true,
+              autorizacionDatosVersion: autorizacion.version,
+              autorizacionDatosFecha: new Date().toISOString(),
+            }
+          : {}),
       };
 
       const res = await postJson("/api/lead/cotizacion", payload);
@@ -204,13 +219,18 @@ export default function ContactoPage() {
                 />
               </div>
 
+              <AutorizacionDatosCheck
+                checked={aceptoDatos}
+                onChange={setAceptoDatos}
+              />
+
               {error && (
                 <p className="text-sm text-red-600 font-medium">{error}</p>
               )}
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || (Boolean(autorizacion) && !aceptoDatos)}
                 className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-10 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {submitting ? (

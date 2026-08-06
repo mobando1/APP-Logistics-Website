@@ -18,6 +18,7 @@ import ServiciosPage from "./pages/Servicios";
 import NosotrosPage from "./pages/Nosotros";
 import ContactoPage from "./pages/Contacto";
 import EmpleoPage from "./pages/Empleo";
+import PoliticaDatosPage from "./pages/PoliticaDatos";
 
 function HomePage() {
   return (
@@ -60,7 +61,7 @@ export default function App() {
         <div className="min-h-screen flex flex-col">
           <ScrollToTop />
           <Navbar />
-          <main className="flex-1 pt-16 lg:pt-20">
+          <main className="flex-1 pt-16 lg:pt-20 print:pt-0">
             <Switch>
               <Route path="/">
                 <HomePage />
@@ -80,6 +81,18 @@ export default function App() {
               <Route path="/empleo">
                 <EmpleoPage />
               </Route>
+              {/* La política publicada es la colombiana (Ley 1581 de 2012); en
+                  España no existe la ruta hasta tener la versión RGPD. */}
+              {locale === "co" && (
+                <Route path="/politica-tratamiento-datos">
+                  <PoliticaDatosPage />
+                </Route>
+              )}
+              {locale === "co" && (
+                <Route path="/privacidad">
+                  <PoliticaDatosPage />
+                </Route>
+              )}
               <Route>
                 <NotFoundPage />
               </Route>

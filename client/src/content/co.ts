@@ -350,6 +350,14 @@ const co: LocaleContent = {
     ],
     declaracion:
       "Declaro que la información suministrada es veraz y que dispongo de los documentos que acreditan mi experiencia laboral, formación académica, cursos, capacitaciones y demás datos incluidos en mi candidatura, comprometiéndome a presentarlos cuando sean requeridos por APP Logistics.",
+    autorizacionDatos: {
+      before:
+        "Autorizo de manera previa, expresa e informada a APP LOGISTICS SAS (NIT 900.534.593-2) para recolectar, almacenar, usar, circular, transmitir y suprimir mis datos personales conforme a las finalidades descritas en su ",
+      linkLabel: "Política de Protección de Datos",
+      after:
+        ", y declaro conocer los derechos que me asisten como Titular, incluidos los de conocer, actualizar, rectificar y suprimir mis datos y revocar esta autorización.",
+      version: "POL-PAE-02 V. 02",
+    },
   },
 };
 

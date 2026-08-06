@@ -35,15 +35,24 @@ function notifyEmails(): string[] {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// Resultado del reenvío. `rejected` distingue "RASTREO contestó que no entiende
+// la petición" (4xx) de "RASTREO no contestó" (5xx, red, timeout): solo el
+// primero se puede arreglar mandando un payload distinto.
+interface ForwardResult {
+  ok: boolean;
+  rejected: boolean;
+}
+
 // Reenvía al backend RASTREO con un reintento ante fallos transitorios (5xx/red).
 // Pasa la IP real del visitante en "X-Real-IP" para que el límite por-IP de
 // RASTREO siga contando por visitante y no por la (única) IP de este servidor.
 async function forwardToBackend(
   path: string,
   payload: unknown,
-  clientIp: string
-): Promise<boolean> {
-  const delays = [2000]; // 2 intentos en total: inmediato y a los 2 s
+  clientIp: string,
+  { retries = 1 }: { retries?: number } = {}
+): Promise<ForwardResult> {
+  const delays = Array(retries).fill(2000); // reintentos, a los 2 s cada uno
   for (let attempt = 0; attempt <= delays.length; attempt++) {
     if (attempt > 0) await wait(delays[attempt - 1]);
     const controller = new AbortController();
@@ -59,13 +68,64 @@ async function forwardToBackend(
         signal: controller.signal,
       });
       clearTimeout(timer);
-      if (res.ok) return true;
-      if (res.status < 500) return false; // 4xx: reintentar no ayudaría
+      if (res.ok) return { ok: true, rejected: false };
+      if (res.status < 500) {
+        // 4xx: reintentar lo mismo no ayudaría. Se registra el cuerpo porque es
+        // donde RASTREO explica qué campo no le gustó.
+        const detail = await res.text().catch(() => "");
+        console.error(
+          `[leads] RASTREO rechazó ${path} (HTTP ${res.status}): ${detail.slice(0, 500)}`
+        );
+        return { ok: false, rejected: true };
+      }
     } catch {
       clearTimeout(timer); // error de red/timeout → reintentar si quedan intentos
     }
   }
-  return false;
+  return { ok: false, rejected: false };
+}
+
+// ---------------------------------------------------------------------------
+// Reintento degradado
+//
+// Los campos de la autorización de datos son recientes; si algún día los DTO de
+// RASTREO no los reconocen, un 400 haría que TODOS los leads acabaran en el
+// correo de respaldo (y las hojas de vida se perderían, porque ese correo no
+// llevaba adjuntos). Antes que perderlos, se reintenta sin esos campos y la
+// constancia se traslada a un campo de texto que el CRM sí acepta desde siempre.
+// ---------------------------------------------------------------------------
+
+const CONSENT_FIELDS = [
+  "autorizacionDatos",
+  "autorizacionDatosVersion",
+  "autorizacionDatosFecha",
+] as const;
+
+export function hasConsentFields(body: Record<string, unknown>): boolean {
+  return CONSENT_FIELDS.some((f) => body[f] !== undefined);
+}
+
+/** Quita los campos de autorización y deja la constancia dentro de `textField`. */
+export function degradeConsent(
+  body: Record<string, unknown>,
+  textField: string
+): Record<string, unknown> {
+  const out = { ...body };
+  const constancia = [
+    "Autorización de tratamiento de datos aceptada",
+    out.autorizacionDatosVersion,
+    out.autorizacionDatosFecha,
+  ]
+    .filter(Boolean)
+    .join(" — ");
+
+  for (const field of CONSENT_FIELDS) delete out[field];
+
+  // Se conserva lo que la persona hubiera escrito: la constancia se añade al
+  // final, nunca reemplaza.
+  const previo = String(out[textField] ?? "").trim();
+  out[textField] = previo ? `${previo}\n\n${constancia}` : constancia;
+  return out;
 }
 
 // Envío genérico vía la API HTTP de Resend (sin SDK, con fetch). Registra el
@@ -76,6 +136,7 @@ async function postToResend(opts: {
   subject: string;
   html: string;
   replyTo?: string[];
+  attachments?: { filename: string; content: string }[]; // content en base64
   label: string; // para los logs: "correo de respaldo", "correo de confirmación"…
 }): Promise<boolean> {
   if (!RESEND_API_KEY) {
@@ -94,6 +155,9 @@ async function postToResend(opts: {
       html: opts.html,
     };
     if (opts.replyTo && opts.replyTo.length) body.reply_to = opts.replyTo;
+    if (opts.attachments && opts.attachments.length) {
+      body.attachments = opts.attachments;
+    }
     const res = await fetch(RESEND_ENDPOINT, {
       method: "POST",
       headers: {
@@ -123,8 +187,18 @@ async function postToResend(opts: {
 }
 
 // Aviso interno al equipo (a las bandejas de NOTIFY_EMAIL).
-function sendBackupEmail(subject: string, html: string): Promise<boolean> {
-  return postToResend({ to: notifyEmails(), subject, html, label: "correo de respaldo" });
+function sendBackupEmail(
+  subject: string,
+  html: string,
+  attachments?: { filename: string; content: string }[]
+): Promise<boolean> {
+  return postToResend({
+    to: notifyEmails(),
+    subject,
+    html,
+    attachments,
+    label: "correo de respaldo",
+  });
 }
 
 // Confirmación personalizada a quien llenó el formulario (postulante o contacto).
@@ -209,6 +283,18 @@ function intro(html: string): string {
   return `<p style="margin:0 0 8px;color:#1f2937;font-size:15px;line-height:1.65;">${html}</p>`;
 }
 
+// Aviso rojo al principio del correo. Solo se usa en el canal de respaldo: sin
+// él, el aviso interno se ve idéntico a una notificación normal y nadie se
+// entera de que el lead NO quedó en el CRM.
+function banner(title: string, body: string): string {
+  return (
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;border-radius:8px;"><tr><td style="padding:14px 16px;">` +
+    `<p style="margin:0 0 4px;color:#991b1b;font-size:14px;font-weight:800;">${title}</p>` +
+    `<p style="margin:0;color:#7f1d1d;font-size:13px;line-height:1.6;">${body}</p>` +
+    `</td></tr></table>`
+  );
+}
+
 // Texto pequeño en gris (nota de adjuntos / avisos). Mismo estilo que RASTREO.
 function fineprint(html: string): string {
   return `<p style="margin:8px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">${html}</p>`;
@@ -226,6 +312,17 @@ function dataRows(fields: Array<[string, unknown]>): string {
     )
     .join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 4px;">${rows}</table>`;
+}
+
+// Resumen de la autorización de tratamiento de datos para el aviso interno.
+// Cadena vacía si el lead no la trae: dataRows() omite la fila.
+// Este correo solo sale cuando RASTREO falla, así que la prueba "de verdad" es
+// la que queda en el CRM; esto es el respaldo del canal de respaldo.
+function autorizacionResumen(b: Record<string, unknown>): string {
+  if (!b.autorizacionDatos) return "";
+  return ["Aceptada", b.autorizacionDatosVersion, b.autorizacionDatosFecha]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 // Devuelve el email saneado si parece válido, o null. Evita pedirle a Resend que
@@ -285,6 +382,38 @@ function validateCandidatoFiles(body: Record<string, unknown>): string | null {
   return null;
 }
 
+// Tope prudente para el adjunto del correo de respaldo. Resend corta en 40MB y
+// el base64 ya viene inflado ~33%: por encima de esto se omite el adjunto (y se
+// avisa en el correo) antes que arriesgar que el envío entero falle.
+const MAX_ATTACH_BYTES = 15 * 1024 * 1024;
+
+/**
+ * Extrae la hoja de vida del payload como adjunto para Resend.
+ * Devuelve undefined si no viene, si no es una data URL base64 o si es enorme.
+ */
+function cvAttachment(
+  b: Record<string, unknown>
+): { filename: string; content: string }[] | undefined {
+  const dataUrl = b.hojaVidaUrl;
+  if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:")) return undefined;
+  const comma = dataUrl.indexOf(",");
+  if (comma < 0 || !/;base64/i.test(dataUrl.slice(0, comma))) return undefined;
+
+  const content = dataUrl.slice(comma + 1);
+  if (base64Bytes(content) > MAX_ATTACH_BYTES) {
+    console.error(
+      "[leads] hoja de vida demasiado grande para adjuntarla al correo de respaldo; se omite."
+    );
+    return undefined;
+  }
+
+  const filename = String(b.hojaVidaNombre || "hoja-de-vida.pdf").replace(
+    /[\\/:*?"<>|]/g, // caracteres que rompen el nombre de archivo en Windows
+    "_"
+  );
+  return [{ filename, content }];
+}
+
 async function handle(
   req: Request,
   res: Response,
@@ -292,6 +421,12 @@ async function handle(
     backendPath: string;
     subject: string;
     html: string;
+    // Campo de texto libre del payload donde dejar la constancia de la
+    // autorización si hay que reintentar sin los campos dedicados.
+    consentTextField: string;
+    // Adjuntos del correo de respaldo (hoy: la hoja de vida). Solo viajan por
+    // este canal; cuando RASTREO recibe el lead, los archivos van al portal.
+    attachments?: { filename: string; content: string }[];
     // Confirmación opcional para la persona que llenó el formulario. Solo se
     // envía como respaldo si RASTREO no recibió el lead (cuando RASTREO está
     // sano, es él quien manda la confirmación).
@@ -304,9 +439,42 @@ async function handle(
       .status(429)
       .json({ ok: false, message: "Demasiados envíos. Intenta más tarde." });
   }
+
+  const body: Record<string, unknown> = req.body ?? {};
+
+  // La fecha de la autorización la sella el servidor: una prueba de
+  // consentimiento no puede depender del reloj del PC del visitante.
+  if (body.autorizacionDatos) {
+    body.autorizacionDatosFecha = new Date().toISOString();
+  }
+
   // Canal primario: RASTREO. Guarda en BD/portal y envía SUS PROPIOS correos
   // (aviso al equipo + confirmación a la persona).
-  const backendOk = await forwardToBackend(opts.backendPath, req.body, clientIp);
+  let forward = await forwardToBackend(opts.backendPath, body, clientIp);
+
+  // Si RASTREO rechazó la petición (4xx) y el lead traía los campos de
+  // autorización, el sospechoso más probable es que sus DTO todavía no los
+  // conozcan. Antes que mandar el lead al correo (donde se perderían los
+  // archivos), se reintenta una vez sin ellos, con la constancia como texto.
+  // Un solo intento: el navegador espera 40 s y ya se consumió parte.
+  if (!forward.ok && forward.rejected && hasConsentFields(body)) {
+    console.error(
+      `[leads] reintento degradado (sin campos de autorización) para ${opts.backendPath}`
+    );
+    forward = await forwardToBackend(
+      opts.backendPath,
+      degradeConsent(body, opts.consentTextField),
+      clientIp,
+      { retries: 0 }
+    );
+    if (forward.ok) {
+      console.error(
+        `[leads] REVISAR DTO: ${opts.backendPath} no acepta los campos de autorización; el lead entró con la constancia en "${opts.consentTextField}".`
+      );
+    }
+  }
+
+  const backendOk = forward.ok;
 
   // Red de seguridad: SOLO si RASTREO no recibió el lead, este servidor manda los
   // correos (aviso al equipo + confirmación a la persona). Así no se duplican los
@@ -314,8 +482,24 @@ async function handle(
   // RASTREO está caído.
   let emailOk = false;
   if (!backendOk) {
+    // El aviso se marca en grande: este correo significa que el lead NO quedó
+    // en el CRM y que alguien tiene que cargarlo a mano.
+    const faltanAdjuntos = !opts.attachments?.length;
+    const alerta =
+      banner(
+        "⚠️ ESTE LEAD NO QUEDÓ EN EL CRM",
+        "RASTREO no recibió la solicitud, así que hay que cargarla a mano en el portal." +
+          (faltanAdjuntos
+            ? " Los archivos adjuntos no viajaron: hay que pedírselos a la persona."
+            : " La hoja de vida va adjunta a este correo.")
+      ) + opts.html;
+
     const [notifOk] = await Promise.all([
-      sendBackupEmail(opts.subject, opts.html),
+      sendBackupEmail(
+        `⚠️ RASTREO NO RECIBIÓ · ${opts.subject}`,
+        alerta,
+        opts.attachments
+      ),
       opts.confirmation
         ? sendConfirmationEmail(
             opts.confirmation.to,
@@ -398,6 +582,7 @@ export function registerLeadRoutes(app: Express) {
           ["Teléfono", b.contactoTelefono],
           ["Servicio", b.servicioInteres],
           ["Mensaje", b.mensaje],
+          ["Autorización de datos", autorizacionResumen(b)],
         ])
     );
 
@@ -423,7 +608,13 @@ export function registerLeadRoutes(app: Express) {
         }
       : null;
 
-    await handle(req, res, { backendPath: "/api/cotizaciones", subject, html, confirmation });
+    await handle(req, res, {
+      backendPath: "/api/cotizaciones",
+      subject,
+      html,
+      consentTextField: "mensaje",
+      confirmation,
+    });
   });
 
   // Postulación de empleo
@@ -457,11 +648,17 @@ export function registerLeadRoutes(app: Express) {
           ["Nacionalidad", b.nacionalidad],
           ["Fecha disponible", b.fechaDisponible],
           ["Comentarios", b.comentarios],
+          ["Autorización de datos", autorizacionResumen(b)],
         ]) +
         fineprint(
           "Los archivos adjuntos (CV, documentos) quedan disponibles en el portal cuando la postulación entra a RASTREO."
         )
     );
+
+    // La hoja de vida es el único archivo irreemplazable: si RASTREO no recibe
+    // la postulación, viaja adjunta en el correo de respaldo. Los demás
+    // documentos (cédula, antecedentes) se le pueden volver a pedir.
+    const attachments = cvAttachment(b);
 
     // Confirmación personalizada para el postulante (si dejó un email válido).
     // Mismo texto y diseño que la confirmación principal de RASTREO.
@@ -485,6 +682,13 @@ export function registerLeadRoutes(app: Express) {
         }
       : null;
 
-    await handle(req, res, { backendPath: "/api/candidatos", subject, html, confirmation });
+    await handle(req, res, {
+      backendPath: "/api/candidatos",
+      subject,
+      html,
+      consentTextField: "comentarios",
+      attachments,
+      confirmation,
+    });
   });
 }

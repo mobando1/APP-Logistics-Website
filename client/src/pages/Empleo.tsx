@@ -4,6 +4,7 @@ import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 import { useLocale } from "@client/lib/LocaleContext";
 import { postJson } from "@client/lib/api";
 import { validateFile, MAX_FILE_MB } from "@client/lib/fileValidation";
+import AutorizacionDatosCheck from "@client/components/forms/AutorizacionDatosCheck";
 
 const identidadGenero = [
   "Masculino",
@@ -89,6 +90,7 @@ export default function EmpleoPage() {
     nacionalidades,
     documentoApiMap,
     declaracion,
+    autorizacionDatos: autorizacion,
   } = content.forms;
 
   const [formData, setFormData] = useState({
@@ -115,6 +117,9 @@ export default function EmpleoPage() {
   const [fileSizes, setFileSizes] = useState<Record<string, number>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [acepto, setAcepto] = useState(false);
+  // Check independiente del anterior: la declaración de veracidad y la
+  // autorización de tratamiento de datos no pueden ir agrupadas.
+  const [aceptoDatos, setAceptoDatos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -264,6 +269,15 @@ export default function EmpleoPage() {
         pasaporteNombre: fileNames.pasaporte || null,
         autorizacionTrabajoUrl: fileData.autorizacionTrabajo || null,
         autorizacionTrabajoNombre: fileNames.autorizacionTrabajo || null,
+        // Prueba de la autorización de tratamiento de datos: la política obliga
+        // a conservar copia (num. 8 y 15). Antes el check nunca salía del navegador.
+        ...(autorizacion
+          ? {
+              autorizacionDatos: true,
+              autorizacionDatosVersion: autorizacion.version,
+              autorizacionDatosFecha: new Date().toISOString(),
+            }
+          : {}),
       };
 
       const res = await postJson("/api/lead/candidato", payload);
@@ -712,6 +726,12 @@ export default function EmpleoPage() {
             </span>
           </label>
 
+          {/* Autorización de tratamiento de datos (check aparte de la declaración) */}
+          <AutorizacionDatosCheck
+            checked={aceptoDatos}
+            onChange={setAceptoDatos}
+          />
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
               {error}
@@ -721,7 +741,9 @@ export default function EmpleoPage() {
           <div className="text-center pt-2">
             <button
               type="submit"
-              disabled={submitting || !acepto}
+              disabled={
+                submitting || !acepto || (Boolean(autorizacion) && !aceptoDatos)
+              }
               className="bg-accent hover:bg-accent/90 text-white px-12 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

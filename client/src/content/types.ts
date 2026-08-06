@@ -111,6 +111,17 @@ export interface LocaleContent {
     grupoEtnico?: string[]; // undefined en España (se oculta el campo)
     nacionalidades?: string[]; // solo España: ["Español", "Extranjero"]
     declaracion: string; // texto de la declaración obligatoria (ambos países)
+    // Autorización de tratamiento de datos (check propio, separado de la
+    // declaración de veracidad: la Ley 1581 no admite autorizaciones abiertas).
+    // El texto se parte en dos para embeber el enlace a la política.
+    // undefined => no se pide autorización en ese país (España: falta la
+    // política RGPD/LOPDGDD; ver client/src/content/legal/index.ts).
+    autorizacionDatos?: {
+      before: string;
+      linkLabel: string;
+      after: string;
+      version: string; // versión aceptada, viaja al CRM: "POL-PAE-02 V. 02"
+    };
   };
 }
 

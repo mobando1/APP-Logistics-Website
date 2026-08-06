@@ -305,6 +305,9 @@ const es: LocaleContent = {
     nacionalidades: ["Español", "Extranjero"],
     declaracion:
       "Declaro que la información suministrada es veraz y que dispongo de los documentos que acreditan mi experiencia laboral, formación académica, cursos, capacitaciones y demás datos incluidos en mi candidatura, comprometiéndome a presentarlos cuando sean requeridos por APP Logistics.",
+    // autorizacionDatos se omite en España: la política publicada es la
+    // colombiana (Ley 1581) y no aplica aquí. PENDIENTE: texto de autorización
+    // RGPD/LOPDGDD + su política, y entonces se rellena esta clave.
   },
 };
 

@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import cookieParser from "cookie-parser";
 import geoip from "geoip-lite";
 import { registerLeadRoutes } from "./leads";
+import { isCoOnlyPath, stripEsPrefix } from "../shared/coOnlyPaths";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +55,19 @@ async function start() {
   app.use((req, res, next) => {
     if (!isDocumentRequest(req)) return next();
     const isEs = req.path === "/es" || req.path.startsWith("/es/");
+
+    // Rutas que solo existen en Colombia (la política de datos). Se tratan como
+    // excepción de la detección de país, NO como un redirect suelto: si se
+    // dejara actuar al bloque de abajo, este las mandaría de vuelta a "/es" y
+    // el navegador entraría en un bucle de redirecciones.
+    if (isCoOnlyPath(req.path)) {
+      if (isEs) {
+        res.set("Cache-Control", "no-store");
+        return res.redirect(302, stripEsPrefix(req.originalUrl));
+      }
+      return next(); // ya está en la versión Colombia: servir sin reenviar a /es
+    }
+
     if (desiredLocale(req) === "es" && !isEs) {
       res.set("Cache-Control", "no-store");
       res.set("Vary", "Cookie");
