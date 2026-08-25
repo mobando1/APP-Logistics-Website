@@ -38,9 +38,12 @@ async function start() {
   const app = express();
   // Necesario para leer la IP real del cliente tras un proxy/CDN (X-Forwarded-For).
   app.set("trust proxy", true);
-  // Límite amplio: las postulaciones traen hasta 4 documentos en base64
-  // (hasta 10MB c/u; base64 infla ~33%, así que 50mb cubre el caso completo).
-  app.use(express.json({ limit: "50mb" }));
+  // Las postulaciones traen hasta 4 documentos en base64 (2MB c/u como máximo,
+  // ver shared/fileLimits). Base64 infla ~33%, así que el peor caso ronda los
+  // 11MB: 15mb deja margen para el resto del JSON sin dejar la puerta abierta a
+  // payloads enormes. Ojo si sube el límite por archivo: este tiene que subir
+  // con él, o el formulario reventará con un 413 antes de llegar a validarlo.
+  app.use(express.json({ limit: "15mb" }));
   app.use(cookieParser());
 
   app.get("/api/health", (_req, res) => {

@@ -17,6 +17,7 @@ import {
   MAX_FILE_MB,
   MAX_TOTAL_BYTES,
   MAX_TOTAL_MB,
+  base64Bytes,
 } from "../shared/fileLimits";
 
 const BACKEND_URL = "https://app-server-production-65d5.up.railway.app";
@@ -38,9 +39,13 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // Resultado del reenvío. `rejected` distingue "RASTREO contestó que no entiende
 // la petición" (4xx) de "RASTREO no contestó" (5xx, red, timeout): solo el
 // primero se puede arreglar mandando un payload distinto.
+// `status` y `message` guardan lo que contestó, para poder distinguir un rechazo
+// deliberado (un archivo que no cabe) de un desajuste de campos.
 interface ForwardResult {
   ok: boolean;
   rejected: boolean;
+  status?: number;
+  message?: string;
 }
 
 // Reenvía al backend RASTREO con un reintento ante fallos transitorios (5xx/red).
@@ -76,7 +81,13 @@ async function forwardToBackend(
         console.error(
           `[leads] RASTREO rechazó ${path} (HTTP ${res.status}): ${detail.slice(0, 500)}`
         );
-        return { ok: false, rejected: true };
+        let message: string | undefined;
+        try {
+          message = JSON.parse(detail)?.message;
+        } catch {
+          // El cuerpo no era JSON: se queda sin mensaje y el llamador decide.
+        }
+        return { ok: false, rejected: true, status: res.status, message };
       }
     } catch {
       clearTimeout(timer); // error de red/timeout → reintentar si quedan intentos
@@ -345,21 +356,13 @@ function tooMany(ip: string): boolean {
   return recent.length > LIMIT;
 }
 
-// Tamaño en bytes que representa una cadena base64 (sin el prefijo data URL).
-function base64Bytes(b64: string): number {
-  const len = b64.length;
-  if (len === 0) return 0;
-  const padding = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
-  return Math.floor((len * 3) / 4) - padding;
-}
-
 // Defensa en profundidad: valida los adjuntos del payload ANTES de reenviarlos a
 // RASTREO. La validación del navegador puede saltarse (peticiones directas a la
 // API), por eso el servidor vuelve a comprobar tipo y tamaño. Solo inspecciona
 // data URLs base64 (lo que envía el formulario); cualquier otro valor se ignora
 // para no romper integraciones que manden URLs reales. Devuelve un mensaje de
 // error o null si todo está correcto.
-function validateCandidatoFiles(body: Record<string, unknown>): string | null {
+export function validateCandidatoFiles(body: Record<string, unknown>): string | null {
   let total = 0;
   for (const field of FILE_URL_FIELDS) {
     const value = body[field];
@@ -382,10 +385,12 @@ function validateCandidatoFiles(body: Record<string, unknown>): string | null {
   return null;
 }
 
-// Tope prudente para el adjunto del correo de respaldo. Resend corta en 40MB y
-// el base64 ya viene inflado ~33%: por encima de esto se omite el adjunto (y se
-// avisa en el correo) antes que arriesgar que el envío entero falle.
-const MAX_ATTACH_BYTES = 15 * 1024 * 1024;
+// Tope para el adjunto del correo de respaldo. Se deja por encima del límite
+// por archivo (no en 40MB, que es donde corta Resend) para que siga siendo una
+// red de seguridad real: si algún día entrara un archivo mayor que MAX_FILE_BYTES
+// —una integración distinta, un límite que sube—, el correo de respaldo se envía
+// igual sin el adjunto en vez de fallar entero y perder el lead.
+const MAX_ATTACH_BYTES = MAX_FILE_BYTES * 2;
 
 /**
  * Extrae la hoja de vida del payload como adjunto para Resend.
@@ -451,6 +456,20 @@ async function handle(
   // Canal primario: RASTREO. Guarda en BD/portal y envía SUS PROPIOS correos
   // (aviso al equipo + confirmación a la persona).
   let forward = await forwardToBackend(opts.backendPath, body, clientIp);
+
+  // Rechazo deliberado por tamaño (413): NO es que RASTREO esté caído ni que sus
+  // campos se hayan desincronizado, así que ni se reintenta ni se manda por
+  // correo. Mandarlo por correo le diría al postulante que su postulación quedó
+  // enviada y al equipo que la cargue a mano — justo lo que el límite quiere
+  // evitar. Se le devuelve el motivo para que corrija el archivo y reenvíe.
+  if (!forward.ok && forward.status === 413) {
+    return res.status(413).json({
+      ok: false,
+      message:
+        forward.message ||
+        `Uno de los documentos supera el tamaño máximo de ${MAX_FILE_MB}MB.`,
+    });
+  }
 
   // Si RASTREO rechazó la petición (4xx) y el lead traía los campos de
   // autorización, el sospechoso más probable es que sus DTO todavía no los
@@ -623,9 +642,12 @@ export function registerLeadRoutes(app: Express) {
 
     // Defensa en profundidad: rechaza adjuntos de tipo/tamaño inválido antes de
     // procesar o reenviar (la validación del navegador puede saltarse).
+    // 413 y no 400: el formulario solo muestra el mensaje del servidor cuando el
+    // rechazo es por tamaño; con un 400 la persona vería el error genérico de
+    // "no pudimos enviar" y no sabría que lo único que falla es un archivo.
     const fileError = validateCandidatoFiles(b);
     if (fileError) {
-      return res.status(400).json({ ok: false, message: fileError });
+      return res.status(413).json({ ok: false, message: fileError });
     }
 
     const nombre = [b.primerNombre, b.segundoNombre, b.primerApellido, b.segundoApellido]

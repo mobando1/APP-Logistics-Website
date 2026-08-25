@@ -3,8 +3,14 @@ import { Upload, Send, AlertCircle, CheckCircle, Loader2, X } from "lucide-react
 import CountryCodeSelect from "@client/components/ui/CountryCodeSelect";
 import { useLocale } from "@client/lib/LocaleContext";
 import { postJson } from "@client/lib/api";
-import { validateFile, MAX_FILE_MB } from "@client/lib/fileValidation";
+import { MAX_FILE_MB } from "@client/lib/fileValidation";
+import { prepareFile } from "@client/lib/prepareFile";
 import AutorizacionDatosCheck from "@client/components/forms/AutorizacionDatosCheck";
+import { ALLOWED_EXTENSIONS } from "@shared/fileLimits";
+
+// Atributo accept del input, derivado de la lista compartida para que no se
+// desincronice con lo que valida fileValidation.
+const ACCEPT_ATTR = ALLOWED_EXTENSIONS.map((e) => `.${e}`).join(",");
 
 const identidadGenero = [
   "Masculino",
@@ -27,6 +33,7 @@ function FileUpload({
   onDismissError,
   fileName,
   error,
+  busy,
 }: {
   label: string;
   name: string;
@@ -34,22 +41,28 @@ function FileUpload({
   onDismissError: (field: string) => void;
   fileName: string;
   error?: string;
+  busy?: boolean;
 }) {
   return (
     <div>
       <p className="text-sm font-medium text-foreground mb-2">{label}</p>
       <label
-        className={`flex items-center justify-center gap-2 bg-accent/90 hover:bg-accent text-white px-5 py-3 rounded-xl cursor-pointer transition-colors text-sm font-medium ${
-          error ? "ring-2 ring-red-400" : ""
-        }`}
+        className={`flex items-center justify-center gap-2 bg-accent/90 hover:bg-accent text-white px-5 py-3 rounded-xl transition-colors text-sm font-medium ${
+          busy ? "cursor-wait opacity-80" : "cursor-pointer"
+        } ${error ? "ring-2 ring-red-400" : ""}`}
       >
-        <Upload className="h-4 w-4" />
-        {fileName || "Cargar archivo"}
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="h-4 w-4" />
+        )}
+        {busy ? "Preparando archivo..." : fileName || "Cargar archivo"}
         <input
           type="file"
           name={name}
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          accept={ACCEPT_ATTR}
           onChange={onChange}
+          disabled={busy}
           className="hidden"
         />
       </label>
@@ -116,6 +129,10 @@ export default function EmpleoPage() {
   const [fileData, setFileData] = useState<Record<string, string>>({});
   const [fileSizes, setFileSizes] = useState<Record<string, number>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  // Campos que están preparando su archivo. Adjuntar pasó a ser asíncrono (las
+  // imágenes se comprimen antes de subirlas) y sin este aviso el botón se queda
+  // mudo unos segundos con una foto grande.
+  const [fileBusy, setFileBusy] = useState<Record<string, boolean>>({});
   const [acepto, setAcepto] = useState(false);
   // Check independiente del anterior: la declaración de veracidad y la
   // autorización de tratamiento de datos no pueden ir agrupadas.
@@ -180,38 +197,54 @@ export default function EmpleoPage() {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const field = e.target.name;
     const file = e.target.files?.[0];
     e.target.value = ""; // permite reintentar con el mismo archivo
     if (!file) return;
 
     // Suma de los OTROS documentos ya adjuntos, para el tope de tamaño total.
+    // Son los tamaños YA comprimidos, que es lo que de verdad se envía.
     const otherBytes = Object.entries(fileSizes)
       .filter(([k]) => k !== field)
       .reduce((sum, [, v]) => sum + v, 0);
 
-    const check = validateFile(file, otherBytes);
-    if (!check.ok) {
+    // Valida el tipo, comprime si es imagen y valida el tamaño final.
+    setFileBusy((prev) => ({ ...prev, [field]: true }));
+    let prepared;
+    try {
+      prepared = await prepareFile(file, otherBytes);
+    } finally {
+      setFileBusy((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+
+    if (!prepared.ok) {
       clearFile(field); // no dejar adjuntado un archivo inválido
-      setFileErrors((prev) => ({ ...prev, [field]: check.error }));
+      setFileErrors((prev) => ({ ...prev, [field]: prepared.error }));
       return;
     }
 
     // Archivo válido: limpia cualquier error previo de este campo y adjunta.
     dismissFileError(field);
     setFileNames((prev) => ({ ...prev, [field]: file.name }));
-    setFileSizes((prev) => ({ ...prev, [field]: file.size }));
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // Resultado en base64 (data URL) que viaja dentro del JSON al backend.
-      setFileData((prev) => ({ ...prev, [field]: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
+    setFileSizes((prev) => ({ ...prev, [field]: prepared.bytes }));
+    // Base64 (data URL) que viaja dentro del JSON al backend.
+    setFileData((prev) => ({ ...prev, [field]: prepared.dataUrl }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // No enviar mientras un documento se está preparando (comprimiendo): si no,
+    // se enviaría el formulario sin ese adjunto y el candidato creería que lo mandó.
+    if (Object.keys(fileBusy).length > 0) {
+      setError("Espera a que terminen de prepararse los documentos.");
+      return;
+    }
 
     // No enviar si algún campo de archivo tiene un error pendiente (tamaño o
     // tipo no permitido): así el usuario corrige antes de continuar.
@@ -282,7 +315,20 @@ export default function EmpleoPage() {
 
       const res = await postJson("/api/lead/candidato", payload);
 
-      if (!res.ok) throw new Error("Error al enviar");
+      if (!res.ok) {
+        // Rechazo por tamaño: el servidor explica QUÉ documento no cabe, y ese
+        // mensaje es accionable (comprimir y reenviar). El genérico de abajo
+        // dejaría a la persona sin saber qué corregir.
+        if (res.status === 413) {
+          const data = await res.json().catch(() => null);
+          setError(
+            data?.message ||
+              `Uno de los documentos supera el tamaño máximo de ${MAX_FILE_MB}MB.`
+          );
+          return;
+        }
+        throw new Error("Error al enviar");
+      }
 
       setSubmitted(true);
     } catch {
@@ -548,6 +594,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.dniNieTie || ""}
                   error={fileErrors.dniNieTie}
+                  busy={fileBusy.dniNieTie}
                 />
                 <FileUpload
                   label="Pasaporte"
@@ -556,6 +603,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.pasaporte || ""}
                   error={fileErrors.pasaporte}
+                  busy={fileBusy.pasaporte}
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-5">
@@ -566,6 +614,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.cvActualizado || ""}
                   error={fileErrors.cvActualizado}
+                  busy={fileBusy.cvActualizado}
                 />
                 <FileUpload
                   label="Autorización Permiso de Trabajo"
@@ -574,6 +623,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.autorizacionTrabajo || ""}
                   error={fileErrors.autorizacionTrabajo}
+                  busy={fileBusy.autorizacionTrabajo}
                 />
               </div>
             </>
@@ -587,6 +637,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.documentoIdentidad || ""}
                   error={fileErrors.documentoIdentidad}
+                  busy={fileBusy.documentoIdentidad}
                 />
                 <FileUpload
                   label="Hoja de Vida"
@@ -595,6 +646,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.hojaVida || ""}
                   error={fileErrors.hojaVida}
+                  busy={fileBusy.hojaVida}
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-5">
@@ -605,6 +657,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.medidasCorrectivas || ""}
                   error={fileErrors.medidasCorrectivas}
+                  busy={fileBusy.medidasCorrectivas}
                 />
                 <FileUpload
                   label="Antecedentes Policía Nacional"
@@ -613,6 +666,7 @@ export default function EmpleoPage() {
                   onDismissError={dismissFileError}
                   fileName={fileNames.antecedentes || ""}
                   error={fileErrors.antecedentes}
+                  busy={fileBusy.antecedentes}
                 />
               </div>
             </>
